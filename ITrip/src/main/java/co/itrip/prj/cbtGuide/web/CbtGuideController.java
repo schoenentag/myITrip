@@ -3,9 +3,11 @@ package co.itrip.prj.cbtGuide.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import co.itrip.prj.cbtGuide.mapper.CbtGuideMapper;
+import co.itrip.prj.cbtGuide.service.CbtGuideVO;
 import co.itrip.prj.gtpcd.mapper.GtpCdMapper;
 import co.itrip.prj.langcd.mapper.LangCdMapper;
 
@@ -26,10 +28,17 @@ public class CbtGuideController {
 	    return "cbtGuide/cbtGuideMain";
 	}
 	
-	@RequestMapping("/cbtGuideList")
-	public String cbtGuideList(Model model) {
+	/*@RequestMapping("/cbtGuideList")
+	public String cbtGuideList(CbtGuideVO vo, Model model) {
 		model.addAttribute("cbtList", cgDao.cbtGuideList());
 		return "cbtGuide/cbtGuideList";
+	}*/
+	@PostMapping("/cbtGuideListTab")
+	public String cbtGuideListTab(CbtGuideVO vo, Model model) {
+		model.addAttribute("cbtList", cgDao.cbtGuideListTab(vo));
+		System.out.println("gtpCd : "+vo.getGtpCd());
+		System.out.println("langCd : "+vo.getLangCd());
+		return "cbtGuide/cbtGuideListTab";
 	}
 
 }

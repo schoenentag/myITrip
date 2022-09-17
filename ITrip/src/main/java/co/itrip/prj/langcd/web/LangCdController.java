@@ -17,5 +17,4 @@ public class LangCdController {
 		model.addAttribute("langCdList",dao.langCdList());
 		return "cbtUser/langCdList";
 	}
-
 }
