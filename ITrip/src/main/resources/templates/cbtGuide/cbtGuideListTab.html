@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout}">
 <head>
 <meta charset="UTF-8">
-<title>가이드 문제 목록</title>
+<title>CBT 문제 목록</title>
 </head>
 <body>
-	TEST
+<div layout:fragment="content">
+	<!-- Section -->
 	<div>
 		<table>
 			<thead>
@@ -28,6 +31,6 @@
 			</tbody>
 		</table>
 	</div>
-
+</div>
 </body>
 </html>
