@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+layout:decorate="~{layout/layout}">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="js/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<div th:each="cbt: ${langCdList}"> 
+ 	<div th:text="${cbt.cdIni}"></div>
+ 	<div th:text="${cbt.cdNo}"></div>
+ 	<div th:text="${cbt.cdName}"></div>
+</div>
+<div layout:fragment="content">
+	<!-- Section -->	
+	<div id="quesList">
+	    <section class="py-5">
+	        <div class="container px-4 px-lg-5 mt-5">
+	            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+					
+					<div th:each="cbt:${langCdList}"> 
+		                <div class="col mb-5">
+		                    <div class="card h-100">
+		                        <img class="card-img-top" src="images/icon-q.svg" alt="..." />
+		                        
+		                        <div class="card-body p-4">
+		                            <div class="text-center">
+		                                <h5 class="fw-bolder" th:text="${cbt.cdName}"></h5>
+		                                <div>
+		                                	<span th:text="${cbt.cdName}"></span>문제입니다.
+		                                </div>
+		                            </div>
+		                        </div>
+		                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+		                            <div class="text-center question">
+		                            	<a class="btn btn-outline-dark mt-auto" href="#">문제풀기</a>
+				 						<div th:text="${cbt.cdName}" style="display: none"></div>
+		                           	</div>
+		                        </div>
+		                    </div>
+		                </div>
+					</div>
+					
+	            </div>
+	        </div>
+	    </section>
+    </div>
+    
+<button id="addCbt">문제출제하기</button>
+
+
+<form id="frm" method="post">
+	<input type="hidden" id="langCd" name="langCd">
+</form> 
+    
+<script type="text/javascript">
+$("#quesList").on("click",".question",function(e){
+	let code = event.target.nextElementSibling.innerHTML
+	frm.action = "/cbtUserList"
+	frm.langCd.value = code
+	frm.submit()
+}) 
+$("#addCbt").on("click",function(){
+	location.href = "/cbtUserInsertForm"
+	
+})
+</script>  
+</div> 
+</body>
+</html>
