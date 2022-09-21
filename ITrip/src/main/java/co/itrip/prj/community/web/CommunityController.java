@@ -2,6 +2,7 @@ package co.itrip.prj.community.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 import javax.servlet.ServletContext;
@@ -20,13 +21,14 @@ import com.github.pagehelper.PageInfo;
 
 import co.itrip.prj.community.service.CommunityService;
 import co.itrip.prj.community.service.CommunityVO;
+import co.itrip.prj.community.service.ReplyVO;
 
 @Controller
 
 public class CommunityController {
 	@Autowired
 	private CommunityService dao;
-	
+
 	@Autowired
 	private ServletContext servletContext;
 
@@ -39,9 +41,10 @@ public class CommunityController {
 
 	// 게시글 단일출력
 	@GetMapping("/selectCommunity.do")
-	public String selectCommunity(CommunityVO vo, Model model, HttpServletRequest request) {
-		System.out.println(request.getParameter("comNo")); // 글번호 확인
+	public String selectCommunity(CommunityVO vo, ReplyVO rvo, Model model, HttpServletRequest request) {
+		//System.out.println(request.getParameter("comNo")); // 글번호 확인
 		vo.setComNo(Integer.parseInt(request.getParameter("comNo")));
+		rvo.setComNo(Integer.parseInt(request.getParameter("comNo")));
 		model.addAttribute("selectCommunity", dao.selectCommunity(vo));
 		return "community/selectCommunity";
 	}
@@ -62,20 +65,22 @@ public class CommunityController {
 	// 스터디게시판 글 작성(파일업로드)
 	@PostMapping("/studyInsert.do")
 	public String studyInsert(CommunityVO vo, MultipartFile file) throws IllegalStateException, IOException {
-		String projectPath = System.getProperty("user.dir")+"/src/main/resources/static/files"; //프로젝트 경로
-		UUID uuid = UUID.randomUUID();
-		String filename = uuid + "_" + file.getOriginalFilename();
+		if (!file.getOriginalFilename().isEmpty()) {
+			String projectPath = System.getProperty("user.dir") + "/src/main/resources/static/files"; // 프로젝트 경로
+			UUID uuid = UUID.randomUUID();
+			String filename = uuid + "_" + file.getOriginalFilename();
 
-		File saveFile = new File(projectPath, filename);
-		file.transferTo(saveFile);
-		vo.setAttach(filename);
-		String path = "/files/" + filename;
-		vo.setAttachDir(path);
+			File saveFile = new File(projectPath, filename);
+			file.transferTo(saveFile);
+			vo.setAttach(filename);
+			String path = "/files/" + filename;
+			vo.setAttachDir(path);
+		}
 		dao.studyInsert(vo);
 		return "redirect:study.do";
 	}
-	
-	//스터디게시판 글 수정 폼
+
+	// 스터디게시판 글 수정 폼
 	@GetMapping("/studyUpdateForm.do")
 	public String studyUpdateForm(CommunityVO vo, Model model, HttpServletRequest request) {
 		System.out.println(request.getParameter("comNo")); // 글번호 확인
@@ -83,16 +88,16 @@ public class CommunityController {
 		model.addAttribute("selectStudy", dao.selectCommunity(vo));
 		return "community/studyUpdateForm";
 	}
-	
-	//스터디게시판 글 수정
+
+	// 스터디게시판 글 수정
 	@GetMapping("/studyUpdate.do")
 	public String studyUpdate(CommunityVO vo, Model model, HttpServletRequest request) {
 		System.out.println(request.getParameter("comNo")); // 글번호 확인
 		vo.setComNo(Integer.parseInt(request.getParameter("comNo")));
 		return "redirect:study.do";
 	}
-	
-	//스터디게시판 글 삭제
+
+	// 스터디게시판 글 삭제
 	@GetMapping("/studyDelete.do")
 	public String studyDelete(CommunityVO vo, Model model, HttpServletRequest request) {
 		System.out.println(request.getParameter("comNo")); // 글번호 확인
@@ -100,23 +105,39 @@ public class CommunityController {
 		dao.studyDelete(vo);
 		return "redirect:study.do";
 	}
-	
-	//페이징 처리
+
+	//페이징 처리(전체게시판)
 	@GetMapping("/pageTest.do")
-	public String findPage(Model model, HttpServletRequest request, @RequestParam(required = false, defaultValue = "1") int pageNum, 
-																	@RequestParam(required = false, defaultValue = "10") int pageSize){
+	public String findPage(Model model, HttpServletRequest request,
+			@RequestParam(required = false, defaultValue = "1") int pageNum,
+			@RequestParam(required = false, defaultValue = "10") int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
 		model.addAttribute("pageInfo", PageInfo.of(dao.findAll()));
 		return "community/timeline";
 	}
-	
+
+	//페이징 처리(스터디게시판)
 	@GetMapping("/study.do")
-	public String findStudyPage(Model model, HttpServletRequest request, @RequestParam(required = false, defaultValue = "1") int pageNum, 
-																	     @RequestParam(required = false, defaultValue = "10") int pageSize){
+	public String findStudyPage(Model model, HttpServletRequest request,
+			@RequestParam(required = false, defaultValue = "1") int pageNum,
+			@RequestParam(required = false, defaultValue = "10") int pageSize) {
 		PageHelper.startPage(pageNum, pageSize);
 		model.addAttribute("pageInfo", PageInfo.of(dao.findStudy()));
 		return "community/study";
 	}
 	
+	//댓글 리스트
+	@GetMapping("replyList.do")
+	public List<ReplyVO> replyList(){
+		return dao.replyList();
+	}
 	
+	//댓글입력
+	@PostMapping("/replyInsert.do")
+	public String replyInsert(ReplyVO vo, HttpServletRequest request) {
+		System.out.println(request.getParameter("reComNo"));
+		//ajax
+		return null;
+	}
+
 }

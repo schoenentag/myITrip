@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.github.pagehelper.Page;
 
+import co.itrip.prj.community.service.ReplyVO;
+
 public interface CommunityService {
 	List<CommunityVO> communityList(); //게시글 리스트 출력
 	CommunityVO selectCommunity(CommunityVO vo); //게시글 조회
@@ -17,4 +19,9 @@ public interface CommunityService {
 	//페이징 처리
 	List<CommunityVO> findAll();
 	List<CommunityVO> findStudy();
+	
+	//댓글
+	List<ReplyVO> replyList();//댓글 목록
+	int replyInsert();//댓글 등록
+	int replyDelete();//댓글 삭제
 }

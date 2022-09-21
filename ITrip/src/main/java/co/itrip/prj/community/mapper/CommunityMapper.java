@@ -7,7 +7,8 @@ import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 
 import co.itrip.prj.community.service.CommunityVO;
-
+import co.itrip.prj.community.service.ReplyVO;
+ 
 public interface CommunityMapper {
 	List<CommunityVO> communityList(); //게시글 리스트 출력
 	CommunityVO selectCommunity(CommunityVO vo); //게시글 조회
@@ -37,4 +38,9 @@ public interface CommunityMapper {
 		@Result(property = "dt", column = "dt"),
 	})
 	List<CommunityVO> findStudy();
+	
+	//댓글
+	List<ReplyVO> replyList();//댓글 목록
+	int replyInsert();//댓글 등록
+	int replyDelete();//댓글 삭제
 }

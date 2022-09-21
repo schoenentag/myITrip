@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.itrip.prj.cbtUser.mapper.CbtUserMapper;
@@ -35,12 +36,18 @@ public class CbtUserController {
 	@Autowired
 	LangCdService langDao;
 	
-	int r=0;
+	
 	
 	@RequestMapping("/cbtUserList.do")
 	public String cbtUserList(CbtUserVO vo, Model model) {
-		model.addAttribute("cbtList",cuDao.cbtUserList(vo));
-		
+		//model.addAttribute("cbtList",cuDao.cbtUserList(vo));
+		return "cbtUser/cbtUserList";
+	}
+
+	
+	@RequestMapping("/cbtUserSelectOne.do")
+	public String cbtUserSelectOne(CbtUserVO vo,Model model) {
+		model.addAttribute("cbtOne", cuDao.cbtUserSelectOne(vo));
 		return "cbtUser/cbtUserList";
 	}
 	
