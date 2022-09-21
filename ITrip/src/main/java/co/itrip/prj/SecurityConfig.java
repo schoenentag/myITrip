@@ -9,7 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import co.itrip.prj.member.service.MemberDetailService;
 
@@ -59,12 +58,13 @@ public class SecurityConfig {
 				.exceptionHandling()
 					     .accessDeniedHandler(accessDeniedHandler())
 					     .and()
-				// .csrf().disable()
+					     //.csrf().disable()
 				.userDetailsService(memberService());
-		
+		return http.build();
+
 		//http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());// 모든 요청에 대해 CSRF Token생성
 
-		return http.build();
+
 	}
      //시큐리티 처리 안할 부분
 	@Bean

@@ -1,6 +1,7 @@
 package co.itrip.prj.member.web;
 
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 
@@ -34,16 +35,16 @@ public class MemberController { //Principal
 	private CmmnCdService cdService;
 	
 	
-	
-	
 	// 마이페이지
 	@GetMapping("/myPage")
-	public String myPage(Model model) {
+	public String myPage(Model model, HttpServletRequest request) {
+		String memberId = request.getParameter("memberId");
+		//System.out.println(memberId);
 		model.addAttribute("count", fService.followCount());
 		model.addAttribute("follows", fService.followSelectList());
 		return "member/mypage";
 	}	
-
+	
 	// 마이페이지-클래스
 	@GetMapping("/mClass")
 	public String mClass() {
@@ -58,10 +59,11 @@ public class MemberController { //Principal
 	
 	// 가이드 신청폼
 	@GetMapping("/gApply")
-	public String gApply(Model model, MemberVO vo) {
+	public String gApply(Model model, MemberVO vo, HttpServletRequest request) {
 		// 가이드 신청폼에 member테이블 id,name 가져옴
-		String guideId = "qwe";
-		vo.setMemberId(guideId);
+		System.out.println(request.getParameter("memberId"));
+	//	String guideId = "asd";
+		vo.setMemberId(request.getParameter("memberId"));
 		model.addAttribute("guides", mService.memberSelect(vo));
 		// 가이드 신청폼 select 태그
 		model.addAttribute("careerCdList", cdService.careerCdList());
@@ -91,13 +93,16 @@ public class MemberController { //Principal
 	
 	// 가이드 마이페이지
 	@GetMapping("/gmyPage.do")
-	public String gmyPage(Model model, MemberVO vo) {
-		String guideId = "enji";
-		vo.setMemberId(guideId);
-		System.out.println(vo.getMemberId());
-		model.addAttribute("id", mService.memberSelect(vo));
-		vo = mService.memberSelect(vo);
-		System.out.println("========"+vo.getName());
+	public String gmyPage(Model model, MemberVO vo, HttpServletRequest request) {
+		
+		/*
+		 * request.getParameter("guideId");
+		 * System.out.println(request.getParameter("guideId"));
+		 * 
+		 * vo.setMemberId(guideId); System.out.println(vo.getMemberId());
+		 * model.addAttribute("id", mService.memberSelect(vo)); vo =
+		 * mService.memberSelect(vo); System.out.println("========"+vo.getName());
+		 */
 		return "member/gmypage";
 	}	
 
