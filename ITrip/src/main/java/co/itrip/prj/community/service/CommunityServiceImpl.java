@@ -48,13 +48,8 @@ public class CommunityServiceImpl implements CommunityService {
 	}
 
 	@Override
-	public List<CommunityVO> findAll() {
-		return map.findAll();
-	}
-
-	@Override
-	public List<CommunityVO> findStudy() {
-		return map.findStudy();
+	public List<CommunityVO> findAll(CommunityVO vo) {
+		return map.findAll(vo);
 	}
 
 	@Override
@@ -75,6 +70,26 @@ public class CommunityServiceImpl implements CommunityService {
 	@Override
 	public int replyUpdate(ReplyVO vo) {
 		return map.replyUpdate(vo);
+	}
+
+	@Override
+	public List<CommunityVO> freeList() {
+		return map.freeList();
+	}
+
+	@Override
+	public int freeInsert(CommunityVO vo) {
+		return map.freeInsert(vo);
+	}
+
+	@Override
+	public int freeUpdate(CommunityVO vo) {
+		return map.freeUpdate(vo);
+	}
+
+	@Override
+	public int commHitUpdate(CommunityVO vo) {
+		return map.commHitUpdate(vo);
 	}
 
 }

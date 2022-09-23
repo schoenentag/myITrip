@@ -16,8 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 
 import co.itrip.prj.cmmncd.service.CmmnCdService;
+import co.itrip.prj.follow.service.FollowService;
+import co.itrip.prj.follow.service.FollowVO;
 import co.itrip.prj.guide.service.GuideService;
 import co.itrip.prj.guide.service.GuideVO;
+import co.itrip.prj.iclass.service.ClassDtVO;
+import co.itrip.prj.iclass.service.ClassVO;
 import co.itrip.prj.member.service.MemberService;
 import co.itrip.prj.member.service.MemberVO;
 
@@ -25,20 +29,25 @@ import co.itrip.prj.member.service.MemberVO;
 public class GuideController {
 	
 	@Autowired
-	private GuideService guService;
+	private GuideService guService; // 가이드 서비스
   
 	@Autowired
-	private MemberService mService;
+	private MemberService mService; // 유저 서비스
 
 	@Autowired
-	private CmmnCdService cdService;
+	private CmmnCdService cdService; // 공통코드 서비스
 	
+	@Autowired
+	private FollowService fService; // 팔로우 서비스
+	
+
 	
 	int r = 0;
 	
 	// 가이드 insert & 파일처리
 	@PostMapping("/guideInsert.do")
 	public String guideInsert(GuideVO vo, Model model, MultipartFile file) throws IllegalStateException, IOException {
+		
 		if(!file.getOriginalFilename().isEmpty()) {
 			String projectpath = System.getProperty("user.dir")+"/src/main/resources/static/files"; // user.dir은 프로젝트 경로를 담아주게 된다. 
 			UUID uuid = UUID.randomUUID(); // 랜덤으로 이름생성
@@ -54,10 +63,58 @@ public class GuideController {
 		return "member/mypage";
 	}
 	
+	// Class insert & 파일처리
+	@PostMapping("/classInsert.do")
+	public String classInsert(ClassVO vo, ClassDtVO dtvo, MultipartFile file) throws IllegalStateException, IOException {
+		
+		if(!file.getOriginalFilename().isEmpty()) {
+			String projectpath = System.getProperty("user.dir")+"/src/main/resources/static/files";  
+			UUID uuid = UUID.randomUUID(); 
+			String filename = uuid+"_"+file.getOriginalFilename(); 
+			File saveFile = new File(projectpath,filename);
+			file.transferTo(saveFile);
+			vo.setAttach(filename);
+			vo.setAttachDir("/files/"+filename);
+		}
+		
+		
+		
+		return "guide/gclass";
+	}
+	
+	// 가이드 클래스 신청 폼
+	@GetMapping("/startClass.do")
+	public String startClass(Model model, MemberVO vo, HttpServletRequest request) {
+		// guideId 폼에 뿌려주기
+		System.out.println(request.getParameter("memberId"));
+		vo.setMemberId(request.getParameter("memberId"));
+		model.addAttribute("members", mService.memberSelect(vo));
+		
+		// job카테고리 뿌려주기
+		model.addAttribute("joblist", cdService.jobCdList());
+		return "member/cstart";
+	}
+	
+	// 가이드 마이페이지 
+	@GetMapping("/gmyPage.do")
+	public String gmyPage(Model model, Principal principal, FollowVO vo) {
+		 vo.setMemberId(principal.getName());
+		 model.addAttribute("count", fService.followCount()); 
+			/*
+			 * vo = mService.memberSelect(vo); System.out.println("========"+vo.getName());
+			 */
+		return "member/gmypage";
+	}	
 	// 가이드 마이페이지 가이드가 개설한 컨설턴트
 	@GetMapping("/gconsult.do")
-	public String gconsult() {
+	public String gconsult(Model model) {
+		model.addAttribute("joblist", cdService.jobCdList());
 		return "guide/gconsult";
+	}
+	// 상담 등록 폼
+	@GetMapping("/consultStart.do")
+	public String consultStart() {
+		return "guide/consultStart";
 	}
 	
 	// 가이드 마이페이지 가이드가 개설한 클래스
@@ -67,21 +124,29 @@ public class GuideController {
 	}
 	
 
-	// 가이드 수정페이지
+	// 가이드 정보 수정페이지
 	@RequestMapping("/grevice.do")
-	public String grevice(Model model, GuideVO vo, HttpServletRequest request) {
+	public String grevice(Model model, GuideVO vo, Principal principal) {
 		//request.getParameter("guideId");
-		System.out.println(request.getParameter("guideId"));
-		/* request.getSession().setAttribute("id", "eunji"); */
+		//request.getSession().setAttribute("id", "eunji"); 
 		//String guideId = "junga";
-		vo.setGuideId(request.getParameter("guideId"));
+		//System.out.println(principal.getName()); // 아이디확인
+		vo.setGuideId(principal.getName());
 		model.addAttribute("guide", guService.guideSelect(vo));
-		/* vo = mService.memberSelect(vo); */
-		/* System.out.println("========"+vo.getName()); */
-		model.addAttribute("careerCdList", cdService.careerCdList());
-		model.addAttribute("dutyCdList", cdService.dutyCdList());
+		model.addAttribute("careerCdList", cdService.careerCdList()); // 경력공통코드
+		model.addAttribute("dutyCdList", cdService.dutyCdList()); // 직무공통코드
 		return "guide/grevice";
 	}
-
+	
+	// 가이드 수정페이지에서 수정 후 form action -> DB수정
+	@PostMapping("/greviceUpdate.do")
+	public String greviceUpdate(GuideVO vo, Principal principal) {
+		// System.out.println(principal.getName()); // 아이디 확인
+		vo.setGuideId(principal.getName());
+		guService.guideUpdate(vo); // 업데이트
+		return "redirect:gmyPage.do";
+	}
+	
+	
 
 }
