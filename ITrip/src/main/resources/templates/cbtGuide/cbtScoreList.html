@@ -11,7 +11,8 @@
   <div class="col-12"  th:each="myList : ${myCbtListS}">
     <div class="card">
       <div class="card-header">
-        <h4 class="card-title">응시과목<span></span> </h4><p>응시일자 : <span th:text="${#dates.format(myList.dt, 'yyyy-MM-dd')}"></span></p>
+        <!-- <h4 class="card-title">응시과목<span></span> </h4> -->
+        <p>응시일자 : <span th:text="${#dates.format(myList.dt, 'yyyy-MM-dd')}"></span></p>
       </div>
       <div class="card-content">
         <div class="card-body">
@@ -54,26 +55,32 @@
 			<div class="col-md-10 col-12 cbtNoSelc">
 				<div class="card">
 					<div class="card-content">
-						<!-- gtpCd에 따른 처리 -->
 						<div class="card-body" >
 								<form class="form form-vertical">
-									<div class="form-body">
+									<div class="form-body" th:each="o: ${ListO}">
 										<div class="row">
 											<div class="col-12">
-												<div class="form-group">
-													<h3>문제 </h3>
-													<a>&nbsp;&nbsp;[ 출제자 : <span ></span> ]</a><br>
-													<label>문제내용</label>
-													<label>  입력한 답 :</label>
-													<label>정답</label>
-													<label>풀이<label>
+												<div class="form-group" >
+													<img alt="" src="images/O.png" style="position:absolute; z-index:2;width: 55px;">
+													&nbsp;&nbsp;<h4>문제</h4><br>
+													<h5><span th:text="${o.ques}"></span></h5>
+													<div th:if="${o.ex1} != null">
+													<label>1. <span th:text="${o.ex1}"></span></label><br>
+													<label>2. <span th:text="${o.ex2}"></span></label><br>
+													<label>3. <span th:text="${o.ex3}"></span></label><br>
+													<label>4. <span th:text="${o.ex4}"></span></label><br>
+													</div>
+													
+													<div class='alert alert-light-primary color-primary'>
+								      					 <a>[ 정답 ] : <span th:text="${o.cnsr}"></span></a><br><br>&nbsp;
+								     					 <a>[ 풀이 ]<br><span th:text="${o.explna}"></span></a>
+								     				</div> 
 												</div>
 											</div>
 										</div>
 									</div>
 								</form>
 							</div>
-							<!-- gtpCd=='1'끝 -->
 						</div><!--<div class="card-content"끝-->
 					</div>
 				</div>
@@ -89,16 +96,23 @@
 						<!-- gtpCd에 따른 처리 -->
 						<div class="card-body" >
 								<form class="form form-vertical">
-									<div class="form-body">
+									<div class="form-body" th:each="x: ${ListX}">
 										<div class="row">
 											<div class="col-12">
 												<div class="form-group">
-													<h3>문제 </h3>
-													<a>&nbsp;&nbsp;[ 출제자 : <span ></span> ]</a><br>
-													<label>문제내용</label>
-													<label>  입력한 답 :</label>
-													<label>정답</label>
-													<label>풀이<label>
+												    <img alt="" src="images/X.png" style="position:absolute; z-index:2;width: 55px">
+												    &nbsp;&nbsp;<h4>문제<br></h4>
+													<h5><span th:text="${x.ques}"></span></h5>
+													<div th:if="${x.ex1} != null">
+													<label>1. <span th:text="${x.ex1}"></span></label><br>
+													<label>2. <span th:text="${x.ex2}"></span></label><br>
+													<label>3. <span th:text="${x.ex3}"></span></label><br>
+													<label>4. <span th:text="${x.ex4}"></span></label><br>
+													</div>
+													<div class='alert alert-light-primary color-primary'>
+								      					 <a>[ 정답 ] : <span th:text="${x.cnsr}"></span></a><br><br>&nbsp;
+								     					 <a>[ 풀이 ]<br><span th:text="${x.explna}"></span></a>
+													</div>
 												</div>
 											</div>
 										</div>
@@ -117,7 +131,6 @@
 </div>
 <!-- Responsive tables end -->
 
-</div>
 
 </body>
 </html>

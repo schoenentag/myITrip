@@ -14,27 +14,47 @@ public class ClassServiceImpl implements ClassService {
 	private ClassMapper map;
 
 	@Override
-	public List<ClassVO> classSelectList(ClassVO vo) {
-		// TODO Auto-generated method stub
-		return map.classSelectList(vo);
+	public List<ClassVO> classList(ClassVO vo) {
+		return map.classList(vo);
 	}
 
 	@Override
-	public ClassVO classSelect(ClassVO vo) {
-		// TODO Auto-generated method stub
-		return map.classSelect(vo);
+	public ClassVO classSelectOne(ClassVO vo) {
+		return map.classSelectOne(vo);
 	}
 
 	@Override
 	public int classInsert(ClassVO vo) {
-		// TODO Auto-generated method stub
-		return map.classInsert(vo);
+		
+		// ClassInsert처리가 먼저
+		int r = map.classInsert(vo);
+		
+		ClassDtVO dtvo = new ClassDtVO(); // ClassDtVO 호출
+		dtvo.setClassNo(vo.getClassNo());
+		
+		// 클래스 날짜&시간등록
+		for(int i=0; i < vo.getClassDt().size(); i++) {
+			if(vo.getClassDt().get(i) != null) {
+				dtvo.setTerm(vo.getClassDt().get(i).getTerm());
+			//	dtvo.setCtimeNo(1+i);
+				dtvo.setBeginTime(vo.getClassDt().get(i).getBeginTime());
+				dtvo.setEndTime(vo.getClassDt().get(i).getEndTime());
+				map.classDtInsert(dtvo);
+			}
+			
+		}
+		return r;
 	}
 
 	@Override
 	public int classDelete(ClassVO vo) {
 		// TODO Auto-generated method stub
 		return map.classDelete(vo);
+	}
+
+	@Override
+	public List<ClassDtVO> classDtList(ClassDtVO vo) {
+		return map.classDtList(vo);
 	}
 
 }
