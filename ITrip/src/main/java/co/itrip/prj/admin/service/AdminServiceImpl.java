@@ -36,6 +36,8 @@ public class AdminServiceImpl implements AdminService {
 		return map.memberListOf(vo);
 	}
 
+	
+	
 	public List<ClassVO> classList(ClassVO vo) {
 		// Class 전체조회
 		return map.classList(vo);
@@ -58,6 +60,11 @@ public class AdminServiceImpl implements AdminService {
 		// 상담 업데이트
 		return map.consultUpdate(vo);
 
+	}
+
+	@Override
+	public int memberAuthUpdateTo(MemberVO vo) {
+		return map.memberAuthUpdateTo(vo);
 	}
 
 	
