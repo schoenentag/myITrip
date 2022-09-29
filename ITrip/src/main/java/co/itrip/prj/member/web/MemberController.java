@@ -12,12 +12,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
+import co.itrip.prj.cbtGuide.service.CbtGuideVO;
+import co.itrip.prj.cbtGuide.service.MyCbtHderVO;
 import co.itrip.prj.cmmncd.service.CmmnCdService;
 import co.itrip.prj.community.service.CommunityService;
 import co.itrip.prj.community.service.CommunityVO;
@@ -32,8 +35,11 @@ import co.itrip.prj.guide.service.GuideService;
 import co.itrip.prj.guide.service.GuideVO;
 import co.itrip.prj.iclass.service.ClassService;
 import co.itrip.prj.iclass.service.ClassVO;
+import co.itrip.prj.langcd.mapper.LangCdMapper;
+import co.itrip.prj.langcd.service.LangCdService;
 import co.itrip.prj.member.service.MemberService;
 import co.itrip.prj.member.service.MemberVO;
+import co.itrip.prj.review.service.ReviewVO;
 
 
 @Controller
@@ -60,6 +66,9 @@ public class MemberController { //Principal
 	@Autowired
 	private GuideService guiService;
 
+	@Autowired
+	private LangCdService lcdService;
+	
 	
 	// 마이페이지
 	@GetMapping("/myPage")
@@ -74,26 +83,26 @@ public class MemberController { //Principal
 		
 	// 마이페이지-클래스
 	@GetMapping("/mClass")
-	public String mClass(ClassVO vo,Model model, HttpServletRequest request) {
-//		model.addAttribute("pageInfo", PageInfo.of(cService.classList(vo)));
-		model.addAttribute("classList", cService.classList(vo));
+	public String mClass(ClassVO vo,Model model, Principal principal) {
+		vo.setMemberId(principal.getName());
+		model.addAttribute("classList", cService.myClassList(vo));
 		return "member/mclass";
 	}
 	
-	// 마이페이지 1:1상담
+	// 마이페이지-1:1상담
 	@GetMapping("/mConsult")
-	public String mConsult(ConsultVO vo, Model model, HttpServletRequest request) {
-		vo.setEnnc("활성화");
-		model.addAttribute("consultList", conService.findAll(vo));
+	public String mConsult(ConsultVO vo, Model model, Principal principal) {
+		vo.setMemberId(principal.getName());
+		model.addAttribute("consultList", conService.myConsultList(vo));
 		return "member/mconsult";
 	}
 	
 	// 가이드 신청폼
 	@GetMapping("/gApply")
-	public String gApply(Model model, MemberVO vo, GuideVO gvo, HttpServletRequest request) {
+	public String gApply(Model model, MemberVO vo, GuideVO gvo, Principal principal) {
 		// 가이드 신청폼에 member테이블 id,name 가져옴
-		vo.setMemberId(request.getParameter("memberId"));
-		gvo.setGuideId(request.getParameter("memberId"));
+		vo.setMemberId(principal.getName());
+		gvo.setGuideId(principal.getName());
 		
 		if(guiService.guideSelect(gvo) == null) {
 			model.addAttribute("guides", mService.memberSelect(vo));
@@ -109,22 +118,29 @@ public class MemberController { //Principal
 	}
 	
 	// 클래스 리뷰
-	@GetMapping("/mcReview")
-	public String mcReview() {
-		return "member/mcreview";
+	@PostMapping("/mcReview")
+	public String mcReview(ReviewVO vo, Model model) {
+		model.addAttribute("guideId", vo.getGuideId());
+		return "member/classReview";
+	}
+	
+	// 상담 리뷰
+	@GetMapping("/conReview")
+	public String conReview() {
+		return "member/consultReview";
 	}
 	
 	
 
 	// 마이페이지 내가 쓴 글(스터디게시판)
 		@GetMapping("/myWriter")
-		public String myWriter(CommunityVO vo,CSBoardVO csvo, Model model, HttpServletRequest request,
+		public String myWriter(CommunityVO vo,CSBoardVO csvo, Model model, Principal principal,
 				@RequestParam(required = false, defaultValue = "1") int pageNum,
 				@RequestParam(required = false, defaultValue = "5") int pageSize) {
 			PageHelper.startPage(pageNum, pageSize);
 			vo.setCtgry("''");
-			vo.setMemberId(request.getParameter("memberId"));
-			csvo.setMemberId(request.getParameter("memberId"));
+			vo.setMemberId(principal.getName());
+			csvo.setMemberId(principal.getName());
 			csvo.setCtgry("QNA");
 			model.addAttribute("pageOutfo", PageInfo.of(csService.findAll(csvo)));
 			model.addAttribute("pageInfo", PageInfo.of(comService.findAll(vo)));
@@ -166,12 +182,26 @@ public class MemberController { //Principal
 //	}
 
 	
-	/** */
+	/* 회원가입*/
 	@PostMapping("/memberInsert.do")
 	public String memberInsert(MemberVO vo) {
 		mService.memberInsert(vo);
 		return "main/main";
 	}
+
 	
+	//경아 - 오답노트
+	@GetMapping("/answerNoteMain.do")
+	public String answerNoteMain(Model model,MyCbtHderVO vo, Principal principal) {
+		vo.setMemberId(principal.getName());
+		model.addAttribute("langCdList",mService.myWrongAnswerLangCd(vo));
+		return "answerNote/answerNoteMain";
+	}
+	
+	@GetMapping("/myWrongAnswerNote.do")
+	public String myWrongAnswerNote(Model model,CbtGuideVO vo) {
+		model.addAttribute("note", mService.myWrongAnswerNote(vo));
+		return "answerNote/answerNoteSolve";
+	}
 }
 

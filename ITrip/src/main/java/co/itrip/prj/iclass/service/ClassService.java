@@ -10,6 +10,9 @@ public interface ClassService {
 	int classDelete(ClassVO vo); // 클래스 삭제
 
 	List<ClassDtVO> classDtList(ClassDtVO vo);
+	List<ClassVO> ajaxJobSearch(ClassVO vo);
+	
+	List<ClassVO> myClassList(ClassVO vo); // 마이페이지 클래스 전체조회
 	
 
 }

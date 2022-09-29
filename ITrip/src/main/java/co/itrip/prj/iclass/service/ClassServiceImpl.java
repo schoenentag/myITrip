@@ -58,4 +58,15 @@ public class ClassServiceImpl implements ClassService {
 		return map.classDtList(vo);
 	}
 
+	@Override
+	public List<ClassVO> ajaxJobSearch(ClassVO vo) {
+		return map.ajaxJobSearch(vo);
+	}
+
+	@Override
+	public List<ClassVO> myClassList(ClassVO vo) {
+		// 마이페이지 class 전체조회
+		return map.myClassList(vo);
+	}
+
 }
