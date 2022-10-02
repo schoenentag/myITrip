@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import co.itrip.prj.cbtGuide.mapper.CbtGuideMapper;
 import co.itrip.prj.cmmncd.mapper.CmmnCdMapper;
-import co.itrip.prj.cmmncd.service.CmmnCdVO;
 import co.itrip.prj.gtpcd.service.GtpCdVO;
 
 /**
@@ -17,7 +16,7 @@ import co.itrip.prj.gtpcd.service.GtpCdVO;
  * 
  * @author 김하은
  * @date 2022.09.16
- * @version 2.1 , 2022.09.23 가이드가 문제 제출시 테이블 두개
+ * @version 2.2 , 2022.09.23 가이드가 문제 제출시 테이블 두개
  * 
  */
 @Service
@@ -53,7 +52,21 @@ public class CbtGuideServiceImpl implements CbtGuideService {
 	/* 문제 한 건 조회 */
 	@Override
 	public CbtGuideVO cbtGuideListOne(CbtGuideVO vo) {
-		return map.cbtGuideListOne(vo);
+		CbtGuideVO list = map.cbtGuideListOne(vo); // 단 건 조회
+		
+		// 조회된 목록 중 코드번호를 이용해 이름을 추출하여 담기
+		list.setGtpCdName(cdMap.cdNameList("G",list.getGtpCd()));
+		list.setLangCdName(cdMap.cdNameList("L",list.getLangCd()));
+		
+		// 키워드 리스트 조회 
+		List<String> keys = map.keywordList(list.getCbtNo());
+		
+		if (keys.size() > 0) {
+			for(int i = 0; i < keys.size(); i ++) {
+				list.setKeyword(keys);
+			}
+		}
+		return list;
 	}
 
 	/* 문제 등록 */
@@ -90,7 +103,18 @@ public class CbtGuideServiceImpl implements CbtGuideService {
 	/* 문제 삭제 : 마이페이지에서 문제를 조회해서 삭제할 예정 */
 	@Override
 	public int cbutGuideDelet(CbtGuideVO vo) {
-		return map.cbutGuideDelet(vo);
+		//cbt 문제 삭제
+	    int r = map.cbutGuideDelet(vo);
+	    //키워드 삭제
+	    CbtKeywordVO kVo = new CbtKeywordVO();
+	    kVo.setCbtNo(vo.getCbtNo());
+	    int kCunt = map.KeywordListCount(kVo);
+	    if (kCunt > 0) {
+	    	map.keywordDelete(vo);
+	    }else{
+	    	System.out.println("================ 삭제할 키워드가 존재하지 않습니다. =====");
+	    }
+	    return r;
 	}
 
 	/* 문제 조회 : 공통코드 (유형, 언어) 필터를 거쳐 출력 */
@@ -109,11 +133,6 @@ public class CbtGuideServiceImpl implements CbtGuideService {
 		return map.ajaxMyCbtLongList(myVo);
 	} 
 
-	/* 키워드 조회 */
-	@Override
-	public CbtKeywordVO keywordList(CbtKeywordVO vo) {
-		return map.keywordList(vo);
-	}
 
 	/* 사용자가 푼 문제 등록 */
 	@Override
@@ -192,9 +211,6 @@ public class CbtGuideServiceImpl implements CbtGuideService {
 		kVo.setKeywordCunt(kCunt);
 		gVo.setChklist(gCunt);
 		
-		System.out.println("=========gVo.getKeyword().size()===="+ kVo.getKeywordCunt());
-		System.out.println("=========gVo.getChklist()===="+ gVo.getChklist());
-		
 		/* 키워드 갯수와 사용자의 정답갯수가 같으면 1(정답), 다르면 0(오답처리) update */
         Map<String, Integer> param = new HashMap<>();
         
@@ -206,7 +222,7 @@ public class CbtGuideServiceImpl implements CbtGuideService {
 	    	param.put("chkOX", 0); // 오답처리 
 	    }
 	    
-		/* 정답유무 처리 업데이트 0 또는 1*/
+		/* 정답유무 처리 업데이트 0 또는 i1*/
 		map.ajaxMyCbLongChkUpdate(param); 
 		
 		return r;

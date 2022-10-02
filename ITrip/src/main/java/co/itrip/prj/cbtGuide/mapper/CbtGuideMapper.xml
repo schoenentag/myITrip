@@ -94,8 +94,12 @@
 	
 	<!-- public int cbutGuideDelet(CbtGuideVO VO);//삭제(D) -->
 	<delete id="cbutGuideDelet">
+	    DELETE FROM CBT_GUIDE WHERE CBT_NO = ${cbtNo}
 	</delete>
-	
+	<!-- public int keywordDelete(CbtGuideVO vo);    /* 키워드 삭제 */  -->
+	<delete id="keywordDelete">
+	    DELETE FROM CBT_KEYWORD WHERE CBT_NO =  ${cbtNo}
+	</delete>
 	<!-- public MyCbtHderVO myCbtHderInsert(MyCbtHderVO vo); // myCBtHder에 담기 -->
 	<insert id="myCbtHderInsert" parameterType="co.itrip.prj.cbtGuide.service.MyCbtHderVO">
 	    <selectKey keyProperty="mcNo" order="BEFORE" resultType="int">
@@ -119,6 +123,12 @@
 		                      CHK4 =  case when( SELECT cnsr FROM cbt_guide WHERE cbt_no = mycbt_hder.cbt_no4 )=(select cnsr4 from mycbt_hder where mc_no= ${mcNo}) then 1 else 0 end,
 		                      CHK5 =  case when( SELECT cnsr FROM cbt_guide WHERE cbt_no = mycbt_hder.cbt_no5 )=(select cnsr5 from mycbt_hder where mc_no= ${mcNo}) then 1 else 0 end  where mc_no =${mcNo}
 	</update>
+	<!-- public List<String> keywordList(int cbtNo); /* 키워드 조회 */ -->
+	<select id="keywordList" parameterType="int" resultType="String">
+	    SELECT C_KWRD
+	    FROM CBT_KEYWORD 
+	    WHERE CBT_NO= ${cbtNo}
+	</select> 
 	
 	<!-- public int KeywordListCount(CbtKeywordVO vo); -->
 	<select id="KeywordListCount" parameterType="co.itrip.prj.cbtGuide.service.CbtKeywordVO" resultType="int">

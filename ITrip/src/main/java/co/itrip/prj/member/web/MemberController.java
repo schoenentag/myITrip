@@ -3,7 +3,7 @@ package co.itrip.prj.member.web;
 
 
 import java.security.Principal;
-
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -83,7 +83,7 @@ public class MemberController { //Principal
 		
 	// 마이페이지-클래스
 	@GetMapping("/mClass")
-	public String mClass(ClassVO vo,Model model, Principal principal) {
+	public String mClass(ClassVO vo, Model model, Principal principal) {
 		vo.setMemberId(principal.getName());
 		model.addAttribute("classList", cService.myClassList(vo));
 		return "member/mclass";
@@ -117,10 +117,12 @@ public class MemberController { //Principal
 		
 	}
 	
-	// 클래스 리뷰
+	// 클래스 리뷰폼
 	@PostMapping("/mcReview")
-	public String mcReview(ReviewVO vo, Model model) {
+	public String mcReview(ReviewVO vo, Model model, Principal principal) {
+		// 클래스 리뷰폼에 가이드 아이디, 클래스 번호 가져감
 		model.addAttribute("guideId", vo.getGuideId());
+		model.addAttribute("no", vo.getNo());
 		return "member/classReview";
 	}
 	
@@ -199,9 +201,12 @@ public class MemberController { //Principal
 	}
 	
 	@GetMapping("/myWrongAnswerNote.do")
-	public String myWrongAnswerNote(Model model,CbtGuideVO vo) {
+	public String myWrongAnswerNote(Model model,CbtGuideVO vo,MyCbtHderVO mvo) {
 		model.addAttribute("note", mService.myWrongAnswerNote(vo));
+		model.addAttribute("myCnsr", mService.myWrongAnswerCnsr(mvo));
 		return "answerNote/answerNoteSolve";
 	}
+
+	
 }
 
