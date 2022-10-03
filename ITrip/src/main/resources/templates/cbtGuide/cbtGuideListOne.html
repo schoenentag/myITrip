@@ -42,10 +42,10 @@
                                 <textarea class="form-control" rows="2" id="cnsr" name="cnsr" th:text="${my.cnsr}" readonly="readonly"></textarea>
                             </div>
                             <!-- 키워드가 있다면 키워드 노출 !-->
-                            <div th:if="${my.keyword}" != null>
+                            <div th:each="key:${keyword}" th:if="${key.cKwrd}" != null>
                                 <div class="col-sm-6">
 	                                <div class="form-group position-relative has-icon-right">
-	                                    <input type="text" class="form-control"  id="keyword" name="keyword" th:value="${my.keyword}" readonly="readonly">
+	                                    <input type="text" class="form-control"  id="keyword" name="keyword" th:value="${key.cKwrd}" readonly="readonly">
 	                                </div>
                                 </div>
                             </div>

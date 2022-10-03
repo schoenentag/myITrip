@@ -161,28 +161,37 @@ public class CbtGuideController {
 		List<CbtGuideVO> list = cgDao.cbtGuideMyList(vo);
 		//model.addAttribute("myList", list);
 		
-	
 		model.addAttribute("pageInfo", PageInfo.of(list));
 		return "cbtGuide/cbtGuideMyList";
 	}
 	
 	/* 문제 상세 정보 */
 	@PostMapping("/cbtGuideListOne.do")
-	public String cbtGuideListOne(CbtGuideVO vo, Model model) {
+	public String cbtGuideListOne(CbtGuideVO vo, CbtKeywordVO kVo, Model model, HttpServletRequest request) {
 		model.addAttribute("myList", cgDao.cbtGuideListOne(vo));
+		model.addAttribute("keyword", cgDao.keywordList(kVo));
 		return "cbtGuide/cbtGuideListOne";
 	}
 	/* 문제 수정 폼 */
 	@PostMapping("/cbtGuideUpdateForm.do")
-	public String cbtGuideUpdateForm(CbtGuideVO vo, Model model) { 
+	public String cbtGuideUpdateForm(CbtGuideVO vo,  CbtKeywordVO kVo, Model model, HttpServletRequest request) { 
 			//Get으로 어케넘겨....!!!! @RequestParam int cbtNo, @RequestParam String gtpCd, @RequestParam String langCd) 
 		//System.out.println("==========================cbtNo : "+cbtNo);
 		//System.out.println("==========================gtpCd : "+gtpCd);
 		//System.out.println("==========================langCd : "+langCd);
-		System.out.println();
 		model.addAttribute("myList", cgDao.cbtGuideListOne(vo));
+		model.addAttribute("keyword", cgDao.keywordList(kVo));
 		return "cbtGuide/cbtGuideUpdateForm";
 	}
+	
+	/* 문제 수정 */
+	@PostMapping("/cbtGuideUpdate.do")
+	public String cbtGuideUpdate(CbtGuideVO vo, CbtKeywordVO kVo, HttpServletRequest request) {
+		
+		cgDao.cbtGuideUpdate(vo);
+		return "redirect:/cbtGuideMyList";
+	}
+	
 	/* 문제 삭제 */
 	@GetMapping("/cbtGuideDelete.do")
 	public String cbtGuideDelete(CbtGuideVO vo, HttpServletRequest request) {
@@ -190,6 +199,11 @@ public class CbtGuideController {
 		cgDao.cbutGuideDelet(vo);
 		return "redirect:/cbtGuideMain.do";
 	}
-	
+	/* 즐겨 찾기 */
+	@GetMapping("/bookmark.do")
+	public String bookmark(Principal prin) {
+		//vo.setMemberId(prin.getName()); //로그인된 사용자 정보 가져와 담기
+		return "bookmark/bookmark";
+	}
 	
 }

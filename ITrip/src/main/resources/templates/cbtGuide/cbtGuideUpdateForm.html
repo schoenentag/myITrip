@@ -42,20 +42,15 @@
                                 <textarea class="form-control" rows="2" id="cnsr" name="cnsr" th:text="${my.cnsr}"></textarea>
                             </div>
                             <!-- 키워드가 있다면 키워드 노출 !-->
-                            <div th:if="${my.keyword}" != null>
-                                <div class="form-group mb-3">
-	                                <label class="form-label">키워드</label>
-	                                <textarea class="form-control" rows="1" id="keyword" name="keyword" th:text="${my.keyword}"></textarea>
-	                            </div>
-	                            <div class="col-sm-6">
+                            <div th:each="key:${keyword}" th:if="${key.cKwrd}" != null>
+                                <div class="col-sm-6">
 	                                <div class="form-group position-relative has-icon-right">
-	                                    <input type="text" class="form-control"  id="keyword" name="keyword" th:value="${my.keyword}">
-	                                        <div class="form-control-icon"><a style="cursor: pointer;" onclick="add()"><h1>+</h1></a>
-	                                        </div>
+	                                    <input type="text" class="form-control"  id="keyword" name="keyword" th:value="${key.cKwrd}">
+	                                    <div class="form-control-icon"><a style="cursor: pointer;" onclick="add()"><h1>+</h1></a></div>
 	                                </div>
                                 </div>
-                                <div id="answer"></div><!-- add누르면 키워드input 추가되는 영억-->
                             </div>
+                            <div id="answer"></div><!-- add누르면 키워드input 추가되는 영억-->
                             <!-- 보기가 있다면 보기 노출 -->
                             <div th:if="${my.ex4}" != null>
 	                            <div class="form-group mb-3">
