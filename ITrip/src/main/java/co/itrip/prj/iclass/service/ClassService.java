@@ -11,7 +11,7 @@ public interface ClassService {
 
 	List<ClassDtVO> classDtList(ClassDtVO vo);
 	List<ClassVO> ajaxJobSearch(ClassVO vo);
-	
+	               
 	List<ClassVO> myClassList(ClassVO vo); // 마이페이지 클래스 전체조회
 	List<ClassVO> alreadyClass(ClassVO vo); // 가이드가 신청한 클래스 전체조회
 	
@@ -20,5 +20,7 @@ public interface ClassService {
 
 	ClassChatVO classChatLink(ClassChatVO vo); //채팅방 연결
 	int classChk(ClassAttendVO vo);//출석체크
+	ClassAttendVO classAttendSelect(ClassAttendVO vo); // (if수업횟수=출석횟수) 소정
+	int classAttendUpdate(ClassAttendVO vo); // 수료여부 소정
 
 }
