@@ -17,6 +17,12 @@ public class CmmnCdServiceImpl implements CmmnCdService {
 	private CmmnCdMapper map; // 공통코드 맵퍼
 	
 	@Override
+	public List<CmmnCdVO> cdList(String val) {
+		// 공통코드 리스트
+		return map.cdList(val);
+	}
+
+	@Override
 	public List<CmmnCdVO> careerCdList() {
 		// 경력 공통코드 리스트
 		return map.careerCdList();
@@ -32,12 +38,6 @@ public class CmmnCdServiceImpl implements CmmnCdService {
 	public List<CmmnCdVO> jobCdList() {
 		// 업무 공통코드 리스트
 		return map.jobCdList();
-	}
-
-	// 이니셜과 코드넘버로 네임 리스트 출력
-	@Override
-	public String cdNameList(String cdIni, String cdNo) {
-		return map.cdNameList(cdIni, cdNo);
 	}
 
 }

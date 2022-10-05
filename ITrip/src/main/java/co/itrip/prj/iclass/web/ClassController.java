@@ -27,6 +27,8 @@ import co.itrip.prj.alarm.service.AlarmVO;
 import co.itrip.prj.cmmncd.service.CmmnCdService;
 import co.itrip.prj.follow.service.FollowService;
 import co.itrip.prj.follow.service.FollowVO;
+import co.itrip.prj.iclass.service.ClassAttendVO;
+import co.itrip.prj.iclass.service.ClassChatVO;
 import co.itrip.prj.iclass.service.ClassDtVO;
 import co.itrip.prj.iclass.service.ClassService;
 import co.itrip.prj.iclass.service.ClassVO;
@@ -39,8 +41,10 @@ public class ClassController {
 	
 	@Autowired
 	private CmmnCdService cmService; // 공통코드서비스
-	
 
+	
+	@Value("${file.dir}")
+	private String fileDir; //파일 저장할 디폴트 경로 C:/Temp
 	
 
 	@Autowired
@@ -57,17 +61,14 @@ public class ClassController {
 		PageHelper.startPage(pageNum, pageSize);
 		
 		model.addAttribute("pageInfo", PageInfo.of(cService.classList(vo)));
-		model.addAttribute("job", cmService.jobCdList());
+		model.addAttribute("job", cmService.cdList("J"));
 		return "class/iclassList";
 	}
 
-	
-	@Value("${file.dir}")
-	private File fileDir;
-	
-	    // Class insert & 파일처리
-		@PostMapping("/classInsert.do")
 
+	    // Class insert & 파일처리
+
+		@PostMapping("/classInsert.do")
 		public String classInsert(AlarmVO avo, FollowVO fvo, ClassVO vo, ClassDtVO dtvo, MultipartFile file) throws IllegalStateException, IOException {
 			
             /*
@@ -84,17 +85,15 @@ public class ClassController {
 			}*/
 			
 			//새로운파일저장경로
-			String saveFolder = ("");
-			File sfile = new File(saveFolder);
 			String oFileName = file.getOriginalFilename();
 			if(!oFileName.isEmpty()) {
-				String sFileName = UUID.randomUUID().toString()+oFileName.substring(oFileName.lastIndexOf("."));
-				String path = fileDir+"/"+sFileName;
+				String sFileName = UUID.randomUUID().toString()+oFileName.substring(oFileName.lastIndexOf(".")); // 마지막.뒤에값 가져오기
+				String path = fileDir+"/Thumbnail/"+sFileName;
 				file.transferTo(new File(path));
 				vo.setAttach(oFileName); 
-				vo.setAttachDir(saveFolder+"/"+sFileName);
+				vo.setAttachDir(sFileName);
+				
 			}
-			
 			cService.classInsert(vo);
 			
 			//알람 처리
@@ -133,14 +132,57 @@ public class ClassController {
 				@RequestParam(required = false, defaultValue = "6") int pageSize){
 			PageHelper.startPage(pageNum, pageSize);
 			
-			//return cService.ajaxJobSearch(vo);
 			return PageInfo.of(cService.ajaxJobSearch(vo));
 		}
 		
+
+		// 이미 신청한 클래스 리스트
+
+		//소정
+
 		@GetMapping("/alreadyClass")
 		public String alreadyClass(Principal principal, Model model, ClassVO vo) {
 			vo.setGuideId(principal.getName());
 			model.addAttribute("alreadyList",cService.alreadyClass(vo) );
 			return"guide/alreadyclass";
 		}
+
+		
+		// 이미 신청한 클래스 리스트 상세보기
+		@RequestMapping("/alreadyClassOne.do")
+		public String alreadyClassOne(ClassVO vo, Model model, ClassDtVO dtvo) {
+			model.addAttribute("class", cService.classSelectOne(vo));
+			model.addAttribute("classdt", cService.classDtList(dtvo));
+			return "class/alreadyclassone";
+		}
+		
+		// 수료증 띄우기(pdf 다운로드)
+		@GetMapping("/certificate.do")
+		public String certificate() {
+			
+			return "class/certificate";
+		}
+
+    
+		// 채팅방 연결
+		@GetMapping("/classChat.do")
+		public String classChat(ClassVO vo, ClassChatVO chatvo, Model model, HttpServletRequest request) {
+			int classNo = Integer.parseInt(request.getParameter("classNo"));
+			chatvo.setClassNo(classNo);
+			model.addAttribute("chat", cService.classChatLink(chatvo));
+			return "chat/classChat";
+		}
+		
+		//출석체크
+		@PostMapping("/classChk.do")
+		@ResponseBody
+		public int classChk(ClassAttendVO vo, Model model, HttpServletRequest request) {
+			int classNo = Integer.parseInt(request.getParameter("classNo"));
+			String memberId = request.getParameter("memberId");
+			System.out.println("classNo : " + classNo + ", memberId : " + memberId);
+			vo.setClassNo(classNo);
+			vo.setMemberId(memberId);
+			return cService.classChk(vo);
+		}
+
 }

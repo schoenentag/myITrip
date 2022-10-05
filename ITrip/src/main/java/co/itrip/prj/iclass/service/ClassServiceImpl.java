@@ -75,6 +75,21 @@ public class ClassServiceImpl implements ClassService {
 		return map.alreadyClass(vo);
 	}
 
-	
+	@Override
+
+	public int classAttendInsert(ClassAttendVO vo) {
+		return map.classAttendInsert(vo);
+  }
+	public ClassChatVO classChatLink(ClassChatVO vo) {
+		//클래스 채팅방 연결
+		return map.classChatLink(vo);
+
+	}
+
+	@Override
+	public int classChk(ClassAttendVO vo) {
+		//클래스 출석체크
+		return map.classChk(vo);
+	}
 
 }

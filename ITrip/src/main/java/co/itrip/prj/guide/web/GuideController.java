@@ -13,14 +13,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 
 import co.itrip.prj.cmmncd.service.CmmnCdService;
+import co.itrip.prj.consult.service.ConsultService;
+import co.itrip.prj.consult.service.ConsultVO;
 import co.itrip.prj.follow.service.FollowService;
 import co.itrip.prj.follow.service.FollowVO;
 import co.itrip.prj.guide.service.GuideService;
 import co.itrip.prj.guide.service.GuideVO;
+import co.itrip.prj.iclass.service.ClassVO;
 import co.itrip.prj.member.service.MemberService;
 import co.itrip.prj.member.service.MemberVO;
 
@@ -38,6 +45,9 @@ public class GuideController {
 	
 	@Autowired
 	private FollowService fService; // 팔로우 서비스
+	
+	@Autowired
+	private ConsultService conservice; // 컨설트 서비스
 	
 
 	
@@ -76,7 +86,10 @@ public class GuideController {
 		return "guide/cstart";
 	}
 	
-	// 가이드 마이페이지 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	// 은지 - 가이드 마이페이지 
 	@GetMapping("/gmyPage.do")
 	public String gmyPage(Model model, Principal principal, FollowVO vo) {
 		 vo.setMemberId(principal.getName());
@@ -87,26 +100,28 @@ public class GuideController {
 		return "guide/gmypage";
 	}	
 	
-	// 가이드 마이페이지 가이드가 개설한 컨설턴트
+	// 은지 - 가이드 마이페이지 -가이드가 개설한 상담 리스트
 	@GetMapping("/gconsult.do")
-	public String gconsult(Model model) {
-		model.addAttribute("joblist", cdService.jobCdList());
+	public String gconsult(ConsultVO vo, Model model, Principal principal) {
+		
+		vo.setGuideId(principal.getName());
+		
+		// 승인 완료된 상담 
+		vo.setStateCd("2");
+		model.addAttribute("consultList", conservice.consultList(vo));
 		return "guide/gconsult";
 	}
 	
-	// 가이드 마이페이지 가이드가 개설한 클래스
+	
+	// 은지 - 가이드 마이페이지 -가이드가 개설한 클래스 리스트
 	@GetMapping("/gclass.do")
 	public String gclass() {
 		return "guide/gclass";
 	}
 	
-	// 가이드 정보 수정페이지
+	// 은지 - 가이드 정보 수정페이지
 	@RequestMapping("/grevice.do")
 	public String grevice(Model model, GuideVO vo, Principal principal) {
-		//request.getParameter("guideId");
-		//request.getSession().setAttribute("id", "eunji"); 
-		//String guideId = "junga";
-		//System.out.println(principal.getName()); // 아이디확인
 		vo.setGuideId(principal.getName());
 		model.addAttribute("guide", guService.guideSelect(vo));
 		model.addAttribute("careerCdList", cdService.careerCdList()); // 경력공통코드
@@ -114,16 +129,15 @@ public class GuideController {
 		return "guide/grevice";
 	}
 	
-	// 가이드 수정페이지에서 수정 후 form action -> DB수정
+	// 은지 - 가이드 정보 수정 처리
 	@PostMapping("/greviceUpdate.do")
 	public String greviceUpdate(GuideVO vo, Principal principal) {
-		// System.out.println(principal.getName()); // 아이디 확인
 		vo.setGuideId(principal.getName());
 		guService.guideUpdate(vo); // 업데이트
 		return "redirect:gmyPage.do";
 	}
 	
-	// 가이드 회원 정보 수정페이지
+	// 은지 - 가이드 회원 정보 수정페이지
 	@GetMapping("/gmrecive.do")
 	public String mrecive1(Principal principal, MemberVO vo, Model model) {
 		vo.setMemberId(principal.getName());
@@ -131,7 +145,7 @@ public class GuideController {
 		return "guide/gmrevice";
 	}
 	
-	// 회원 정보 수정페이지에서 수정 후  form action -> DB수정 -> 수정된 정보 바로 적용
+	// 은지 - 가이드 회원 정보 수정 처리
 	@PostMapping("/gmreviceUpdate.do")
 	public String mreviceUpdate1(MemberVO vo, Principal principal) {
 		vo.setMemberId(principal.getName());
@@ -140,6 +154,21 @@ public class GuideController {
 		return "redirect:gmyPage.do";
 	}
 	
+	@GetMapping("/userList.do")
+	public String userList() {
+		return "guide/userList";
+	}
 	
+	// 은지 - 클래스 수강생 리스트(페이징)
+	@RequestMapping("/ajaxUserList.do")
+	@ResponseBody
+	public PageInfo<ClassVO> userList(ClassVO vo, Principal principal, Model model, HttpServletRequest request,
+			@RequestParam(required = false, defaultValue = "1") int pageNum,
+			@RequestParam(required = false, defaultValue = "8") int pageSize){
+		PageHelper.startPage(pageNum, pageSize);
+		vo.setGuideId(principal.getName());
+		model.addAttribute("pageInfo", PageInfo.of(guService.userList(vo)));
+		return PageInfo.of(guService.userList(vo));
+	}
 
 }
