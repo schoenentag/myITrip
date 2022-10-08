@@ -5,7 +5,11 @@
 
 <insert id="clPayformInsert">
 
-	INSERT INTO PAYFORM VALUES(#{merchant_uid},#{name},#{amount},#{member_id},'CLASS',#{no},sysdate)
+	INSERT INTO PAYFORM VALUES(#{merchant_uid},#{name},#{amount},#{member_id},'CLASS',#{no},sysdate,null,null,null)
 	
+</insert>
+
+<insert id="coPayformInsert">
+	INSERT INTO PAYFORM VALUES(#{merchant_uid},#{name},#{amount},#{member_id}, #{category} ,#{no},sysdate, #{conday},#{beginTime},#{beginTime})
 </insert>
 </mapper>
