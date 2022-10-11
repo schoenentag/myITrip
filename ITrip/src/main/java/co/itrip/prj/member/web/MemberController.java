@@ -240,11 +240,12 @@ public class MemberController { //Principal
 		// 이름과 메일이 일치하면...
 	   model.addAttribute("v", mService.memberSearch(vo));
 		return "main/memberSearchList";
+	
 	}
 	
 	@GetMapping("/memberPwUpdateForm.do")
 	public String memberPwUpdateForm(MemberVO vo, Model model) {
-		System.out.println("====================vo:"+vo);
+		System.out.println("====================memberPwUpdateFormVo:"+vo);
 		return "main/memberPwUpdateForm";
 	}
 
