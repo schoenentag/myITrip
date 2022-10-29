@@ -4,8 +4,7 @@ xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 layout:decorate="~{layout/layout}">
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
-<script src="js/jquery-3.6.0.min.js"></script>
+<title>클래스 상세보기</title>
 <!-- iamport.payment.js -->
   <script type="text/javascript" src="https://cdn.iamport.kr/js/iamport.payment-1.2.0.js"></script>
 </head>
@@ -22,7 +21,7 @@ layout:decorate="~{layout/layout}">
                     <div class="card-body">
                         <div> <!-- @{C:/Temp}+ -->
                         	<!-- <img th:src="@{*{classOne.attachDir}}"alt="Image" class="img-fluid" width="500px" style="float: right;"> -->
-                     		<img th:src="@{/download(fileName=${'/CLASS/'+classOne.attachDir})}" width="500px" style="float: right;" />
+                     		 <img th:src="@{/download(fileName=${'/classimg/'+classOne.attachDir})}" width="500px" style="float: right;"/> 
                         </div>
                         <div class="divider">
                             <div class="divider-text">기본정보</div>
@@ -104,19 +103,17 @@ layout:decorate="~{layout/layout}">
         </div>
         </div>
     </div>
-    <form action="" id="frm" method="post">
+    <form action="ClPayformInsert.do" id="frm" method="post">
     	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 		<input type="hidden" id="memberId" name="member_id" th:value="${#authentication.principal.member.memberId}">
-    	<input type="hidden" id="classNo" name="merchant_uid"><!--  th:value="'CL'+${classOne.classNo+#authentication.principal.member.memberId}" -->
-    	<input type="hidden" name="classNo" th:value="${classOne.classNo}">
-    	<input type="hidden" id="no" name="no" th:value="${classOne.classNo}">
-    	<input type="hidden"  name="name" th:value=${classOne.title}>
-    	<input type="hidden"  name="amount" th:value=${classOne.price}>
-    	<input type="hidden"  name="category" th:value="CLASS">
-    	
-    	<input type="text" id="guideId" name="guideId" class="form-control"  th:value="${classOne.guideId}">
-    	<input type="text"  name="beginTime" th:each="cdt:${classDt}" th:value="${cdt.beginTime}">
-    	<input type="text"  name="conday" th:each="cdt:${classDt}" th:value="${cdt.term}">
+    	<input type="hidden" id="merchantUid" name="merchantUid" th:value="${'CL'+classOne.classNo+#authentication.principal.member.memberId+(max+1)}">
+    	<input type="hidden" id="classNo" name="classNo" th:value="${classOne.classNo}">
+    	<input type="hidden" id="name" name="name" th:value=${classOne.title}>
+    	<input type="hidden" id="price" name="amount" th:value=${classOne.price}>
+    	<input type="hidden" id="category" name="category" th:value="CLASS">
+    	<input type="hidden" id="guideId" name="guideId" class="form-control"  th:value="${classOne.guideId}">
+    	<input type="hidden"  name="beginTime" th:each="cdt:${classDt}" th:value="${cdt.beginTime}">
+    	<input type="hidden"  name="conday" th:each="cdt:${classDt}" th:value="${cdt.term}">
     </form>
     
     <script type="text/javascript">
@@ -130,13 +127,11 @@ layout:decorate="~{layout/layout}">
 	console.log(price)
 	console.log(title)
 	
-	let num = 0;
 	$("#payForm").on("click",function(data,idx) {
-		num ++;
 	    IMP.init('imp21718783');//'가맹점 식별코드' 
 	    IMP.request_pay({// param
 	        pg: "kakaopay.TC0ONETIME", //pg사명 or pg사명.CID 
-	        merchant_uid: "CL"+cNo+mId+num,  // 상점에서 관리하는 주문 번호
+	        merchant_uid: "CL"+cNo+mId,  // 상점에서 관리하는 주문 번호
 	        name: title, //결제창에 노출될 상품명
 	        amount: price, //금액merchant_uid
 	        buyer_email : "testiamport@naver.com", 
@@ -144,8 +139,6 @@ layout:decorate="~{layout/layout}">
 	    }, function (rsp) { // callback
 	    	console.log(rsp)
 	        if (rsp.success) {
-	        	frm.action = "ClPayformInsert.do"
-	        	frm.merchant_uid.value="CL"+cNo+mId+num
 	        	frm.submit()//결제및신청테이블에 추가
 	        	alert("결제가 정상적으로 완료되었습니다. 마이페이지에서 확인하세요.")
 	        	

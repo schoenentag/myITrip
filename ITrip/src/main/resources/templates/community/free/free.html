@@ -4,8 +4,8 @@
 	layout:decorate="~{layout/layout}">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>자유게시판 글목록</title>
 <script src="js/jquery-3.6.0.min.js"></script>
 <style>
 .table {
@@ -31,6 +31,10 @@
 	padding-top : 25px;
 	padding-bottom : 25px;
 }
+#searchFree{
+	margin-left: 20px;
+	text-align: center;
+}
 </style>
 </head>
 
@@ -42,14 +46,21 @@
 					<!-- <div id="boardName" class="alert alert-light-primary color-primary"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> 자유게시판</div> -->
 					<div id="boardName" class="alert alert-primary">
                             <h4 class="alert-heading">자유게시판</h4>
-                        </div>
+                    </div>
+				</div>
+				<div id="searchFree">
+					<select id="key" name="key">
+						<option value="1">제목</option>
+						<option value="2">내용</option>
+					</select>
+					<input type="text" id="val" name="val">&nbsp;<a href="#" id="search" name="search" class="badge bg-info">검색하기</a>
 				</div>
 				<div class="card-body px-0 pb-2">
 					<div class="table-responsive p-0">
 						<table class="table align-items-center mb-0">
 							<thead>
 								<tr>
-									<th class="text-uppercase text-secondary text-md font-weight-bolder opacity-7">글번호</th>
+									<th class="text-uppercase text-secondary text-md font-weight-bolder opacity-7" style="display: none;">글번호</th>
 									<th class="text-uppercase text-secondary text-md font-weight-bolder opacity-7 ps-2">글제목</th>
 									<th style="display: none;" class="text-center text-uppercase text-secondary text-md font-weight-bolder opacity-7">작성자</th>
 									<th class="text-center text-uppercase text-secondary text-md font-weight-bolder opacity-7">작성일자</th>
@@ -58,9 +69,9 @@
 							</thead>
 							<tbody id="freeList">
 								<tr th:each="free : ${pageInfo.list}">
-									<td><p class="text-md text-secondary mb-0" th:text="${free.comNo}">글번호</p></td>
+									<td style="display: none;"><p class="text-md text-secondary mb-0" th:text="${free.comNo}">글번호</p></td>
 									<td><p class="text-md text-secondary mb-0" th:text="${free.title}">글제목</p></td>
-									<td style="display: none;"><p class="text-md text-secondary mb-0" th:text="${free.memberId}">작성자</p></td>
+									<td style="display: none;"><p class="text-md text-secondary mb-0" th:text="${free.nick}">작성자</p></td>
 									<td><p class="text-md text-secondary mb-0" th:text="${free.dt}">작성일자</p></td>
 									<td><p class="text-md text-secondary mb-0" th:text="${free.hit}">조회수</p></td>
 								</tr>
@@ -71,41 +82,45 @@
 						<br>
 					</div>
 						<!-- 페이지네이션 -->
-						<nav aria-label="Page navigation example">
-							<ul class="pagination pagination-primary  justify-content-center">
-								<li class="page-item disabled"
-									th:if="${pageInfo.isIsFirstPage()}"><span
-									class="page-link">«</span></li>
-								<li class="page-item"
-									th:if="${!pageInfo.isIsFirstPage() && pageInfo.getList().size() > 0}"><a
-									class="page-link"
-									th:href="|javascript:gopage([[${pageInfo.getPrePage()}]])|"
-									rel="prev">«</a></li>
-								<li
-									th:class="|page-item ${(pageInfo.pageNum eq page) ? 'active': ''} |"
-									th:each="page:${pageInfo.navigatepageNums}"><span
-									class="page-link" th:if="${pageInfo.pageNum eq page}"
-									th:text="${page}"></span> <a class="page-link"
-									th:unless="${pageInfo.pageNum eq page}"
-									th:href="|javascript:gopage(${page})|" th:text="${page}">{{$page
-										}}</a></li>
-								<li class="page-item" th:if="${pageInfo.hasNextPage}"><a
-									class="page-link"
-									th:href="|javascript:gopage([[${pageInfo.getNextPage()}]])|"
-									rel="next">»</a></li>
-								<li class="page-item disabled"
-									th:unless="${pageInfo.hasNextPage}"><span
-									class="page-link">»</span></li>
-							</ul>
-						</nav>
+						<div id="pageNation">
+							<nav aria-label="Page navigation example">
+								<ul class="pagination pagination-primary  justify-content-center">
+									<li class="page-item disabled"
+										th:if="${pageInfo.isIsFirstPage()}"><span
+										class="page-link">«</span></li>
+									<li class="page-item"
+										th:if="${!pageInfo.isIsFirstPage() && pageInfo.getList().size() > 0}"><a
+										class="page-link"
+										th:href="|javascript:gopage([[${pageInfo.getPrePage()}]])|"
+										rel="prev">«</a></li>
+									<li
+										th:class="|page-item ${(pageInfo.pageNum eq page) ? 'active': ''} |"
+										th:each="page:${pageInfo.navigatepageNums}"><span
+										class="page-link" th:if="${pageInfo.pageNum eq page}"
+										th:text="${page}"></span> <a class="page-link"
+										th:unless="${pageInfo.pageNum eq page}"
+										th:href="|javascript:gopage(${page})|" th:text="${page}">{{$page
+											}}</a></li>
+									<li class="page-item" th:if="${pageInfo.hasNextPage}"><a
+										class="page-link"
+										th:href="|javascript:gopage([[${pageInfo.getNextPage()}]])|"
+										rel="next">»</a></li>
+									<li class="page-item disabled"
+										th:unless="${pageInfo.hasNextPage}"><span
+										class="page-link">»</span></li>
+								</ul>
+							</nav>
+						</div>
 				</div>
 			</div>
 		</div>
 		<script>
+			//페이징
 			function gopage(p) {
 				location.href = '/free.do?pageNum=' + p;
 			}
-
+			
+			//상세조회
 			$("#freeList").on(
 					"click",
 					function(e) {
@@ -114,31 +129,75 @@
 						location.href = "/selectFree.do?comNo=" + comNo;
 					})
 
+			//글쓰기
 			$("#insertBtn").on("click", function(e) {
 				location.href = "/freeInsertForm.do";
 			})
+			
+			//검색
+			$("#search").on("click", function(e){
+				let key = $("#key").val();
+				let val = $("#val").val();
+				gopageSearchFree(1, key, val);
+			})
+			
+			function gopageSearchFree(p, key, val){
+				$.ajax({ 
+					url : "/ajaxSearchFree.do",
+					type : "post",
+					data : {"key" : key, "val" : val, "pageNum" : p},
+					beforeSend: function(xhr){
+						xhr.setRequestHeader("AJAX", true);
+					    xhr.setRequestHeader("X-CSRF-TOKEN", csrfToken);
+					},
+					success : function(data){
+						$("#freeList").empty();
+						let a = '';
+						let pn = '';
+						if(data.list.length != 0){
+							data.list.forEach(elem => {
+								a += '<tr>';
+								a += '<td><p class="text-md text-secondary mb-0">' + elem.comNo + '</p></td>';
+								a += '<td><p class="text-md text-secondary mb-0">' + elem.title + '</p></td>';
+								a += '<td style="display: none;"><p class="text-md text-secondary mb-0">' + elem.memberId + '</p></td>';
+								a += '<td><p class="text-md text-secondary mb-0">'+ elem.dt + '</p></td>';
+								a += '<td><p class="text-md text-secondary mb-0">' + elem.hit + '</p></td></tr>';
+							})
+						} else{
+							a += '<tr><td colspan="5">검색결과가 존재하지 않습니다.</td></tr>';
+						}
+						//페이지네이션
+						pn += '<nav aria-label="Page navigation example" id="page">';
+						pn += '<ul class="pagination pagination-primary  justify-content-center">';
+						if(data.isFirstPage == true){
+							pn += '<li class="page-item disabled"><span class="page-link">«</span></li>';
+						} else{
+							pn += `<li class="page-item">
+								   <a class="page-link" href="javascript:gopageSearchStudy(${data.prePage}, '${key}', '${val}')"
+								rel="prev">«</a></li>`
+						}
+						for(page of data.navigatepageNums){
+							pn += `<li class="page-item (${data.pageNum} eq ${page}) ? active: ''}" ></li>`;
+							if(data.pageNum == page){
+								pn += `<span style="background-color:#5A8DEE; color:white;" class='page-link'>${page}</span>`
+							} else{
+								pn += `<a class='page-link' href='javascript:gopageSearchStudy(${page},"${key}","${val}")'>${page}</a>`
+							}
+							pn += "</li>"
+						}
+						if(data.hasNextPage ==true){
+							pn += ` <li class="page-item"><a class="page-link" href="javascript:gopageSearchStudy(${data.nextPage},'${key}','${val}')" rel="next">»</a></li>`
+						 }else{
+							 pn += '<li class="page-item disabled"><span class="page-link">»</span></li></ul></nav>'
+						 } 
+						$("#freeList").html(a);
+						$("#pageNation").html(pn);
+					}
+				})
+			}
 		</script>
+		
 	</div>
 
-	<!--   Core JS Files   -->
-	<script src="bootstrap/material/assets/js/core/popper.min.js"></script>
-	<script src="bootstrap/material/assets/js/core/bootstrap.min.js"></script>
-	<script src="bootstrap/material/assets/js/plugins/perfect-scrollbar.min.js"></script>
-	<script src="bootstrap/material/assets/js/plugins/smooth-scrollbar.min.js"></script>
-	<script>
-		var win = navigator.platform.indexOf('Win') > -1;
-		if (win && document.querySelector('#sidenav-scrollbar')) {
-			var options = {
-				damping : '0.5'
-			}
-			Scrollbar.init(document.querySelector('#sidenav-scrollbar'),
-					options);
-		}
-	</script>
-	<!-- Github buttons -->
-	<script async defer src="https://buttons.github.io/buttons.js"></script>
-	<!-- Control Center for Material Dashboard: parallax effects, scripts for the example pages etc -->
-	<script
-		src="bootstrap/material/assets/js/material-dashboard.min.js?v=3.0.0"></script>
 </body>
 </html>

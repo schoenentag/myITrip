@@ -49,7 +49,7 @@
 						<table class="table align-items-center mb-0">
 							<thead>
 								<tr>
-									<th class="text-uppercase text-secondary text-md font-weight-bolder opacity-7">글번호</th>
+									<th class="text-uppercase text-secondary text-md font-weight-bolder opacity-7"  style="display: none;">글번호</th>
 									<th class="text-uppercase text-secondary text-md font-weight-bolder opacity-7 ps-2">글제목</th>
 									<th class="text-center text-uppercase text-secondary text-md font-weight-bolder opacity-7">작성자</th>
 									<th class="text-center text-uppercase text-secondary text-md font-weight-bolder opacity-7">작성일자</th>
@@ -58,12 +58,12 @@
 							</thead>
 							<tbody id="csList">
 								<tr th:each="cs : ${pageInfo.list}">
-									<td><p class="text-md text-secondary mb-0"
+									<td style="display: none;"><p class="text-md text-secondary mb-0"
 											th:text="${cs.csNo}">글번호</p></td>
 									<td><p class="text-md text-secondary mb-0 title"
 											th:text="${cs.title}">글제목</p></td>
 									<td><p class="text-md text-secondary mb-0"
-											th:text="${cs.memberId}">작성자</p></td>
+											th:text="${cs.nick}">작성자</p></td>
 									<td><p class="text-md text-secondary mb-0"
 											th:text="${cs.dt}">작성일자</p></td>
 									<td><p class="text-md text-secondary mb-0"
@@ -73,7 +73,9 @@
 						</table>
 						<br>
 						<!-- 권한이 ROLE_ADMIN이면 -->
-						<button id="insertBtn" class="btn btn-primary btn-md mb-0">글쓰기</button>
+						<div th:if="${#authentication.principal.member.auth} == 'ROLE_ADMIN'">
+							<button id="insertBtn" class="btn btn-primary btn-md mb-0">글쓰기</button>
+						</div>
 						<br>
 					</div>
 					<!-- 페이지네이션 -->

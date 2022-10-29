@@ -76,6 +76,10 @@ public class CommunityController {
 	@PostMapping("/studyInsert.do")
 	public String studyInsert(CommunityVO vo, MultipartFile file) throws IllegalStateException, IOException {
 		String oFileName = file.getOriginalFilename();
+		File files = new File(fileDir+"/STUDY/");
+		if(!files.exists()) {
+			files.mkdirs();
+		}
 		if(!oFileName.isEmpty()) {
 			String sFileName = UUID.randomUUID().toString()+oFileName.substring(oFileName.lastIndexOf("."));
 			String path = fileDir+"/STUDY/"+sFileName;
@@ -134,6 +138,10 @@ public class CommunityController {
 	@PostMapping("/freeInsert.do")
 	public String freeInsert(CommunityVO vo, MultipartFile file) throws IllegalStateException, IOException {
 		String oFileName = file.getOriginalFilename();
+		File files = new File(fileDir+"/FREE/");
+		if(!files.exists()) {
+			files.mkdirs();
+		}
 		if(!oFileName.isEmpty()) {
 			String sFileName = UUID.randomUUID().toString()+oFileName.substring(oFileName.lastIndexOf("."));
 			String path = fileDir+"/FREE/"+sFileName;
@@ -153,7 +161,7 @@ public class CommunityController {
 		model.addAttribute("selectStudy", dao.selectCommunity(vo));
 		return "community/free/freeUpdateForm";
 	}
-
+	
 	// 자유게시판 글 수정
 	@PostMapping("/freeUpdate.do")
 	public String freeUpdate(CommunityVO vo, MultipartFile file, HttpServletRequest request)
@@ -170,18 +178,15 @@ public class CommunityController {
 		dao.freeUpdate(vo);
 		return "redirect:free.do";
 	}
-
-	// 페이징
-	// 페이징 처리(전체게시판)
-//	@GetMapping("/pageTest.do")
-//	public String findPage(CommunityVO vo, Model model, HttpServletRequest request,
-//			@RequestParam(required = false, defaultValue = "1") int pageNum,
-//			@RequestParam(required = false, defaultValue = "10") int pageSize) {
-//		PageHelper.startPage(pageNum, pageSize);
-//		vo.setCtgry("''");
-//		model.addAttribute("pageInfo", PageInfo.of(dao.findAll(vo)));
-//		return "community/timeLine";
-//	}
+	
+	// 자유게시판 글 삭제
+	@GetMapping("/freeDelete.do")
+	public String freeDelete(CommunityVO vo, Model model, HttpServletRequest request) {
+		System.out.println(request.getParameter("comNo")); // 글번호 확인
+		vo.setComNo(Integer.parseInt(request.getParameter("comNo")));
+		dao.freeDelete(vo);
+		return "redirect:free.do";
+	}
 
 	// 페이징 처리(스터디게시판)
 	@GetMapping("/study.do")
@@ -193,6 +198,17 @@ public class CommunityController {
 		vo.setMemberId(request.getParameter("memberId"));
 		model.addAttribute("pageInfo", PageInfo.of(dao.findAll(vo)));
 		return "community/study/study";
+	}
+	
+	//스터디게시판 검색
+	@PostMapping("/ajaxSearchStudy.do")
+	@ResponseBody
+	public PageInfo<CommunityVO> ajaxSearchStudy(@RequestParam("key") String key,
+		 	@RequestParam("val") String val, CommunityVO vo, HttpServletRequest request,
+			@RequestParam(required = false, defaultValue = "1") int pageNum,
+			@RequestParam(required = false, defaultValue = "10") int pageSize){
+		PageHelper.startPage(pageNum, pageSize); 
+		return PageInfo.of(dao.studySearch(vo));
 	}
 
 	// 페이징 처리(자유게시판)
@@ -206,7 +222,18 @@ public class CommunityController {
 		model.addAttribute("pageInfo", PageInfo.of(dao.findAll(vo)));
 		return "community/free/free";
 	}
-
+	
+	//자유게시판 검색
+	@PostMapping("/ajaxSearchFree.do")
+	@ResponseBody
+	public PageInfo<CommunityVO> ajaxSearchFree(@RequestParam("key") String key,
+		 	@RequestParam("val") String val, CommunityVO vo, HttpServletRequest request,
+			@RequestParam(required = false, defaultValue = "1") int pageNum,
+			@RequestParam(required = false, defaultValue = "10") int pageSize){
+		PageHelper.startPage(pageNum, pageSize); 
+		return PageInfo.of(dao.freeSearch(vo));
+	}
+	
 	// 댓글
 	// 댓글 리스트
 	@GetMapping("/replyList.do")
@@ -224,12 +251,11 @@ public class CommunityController {
 		String comNo = request.getParameter("comNo");
 		String content = request.getParameter("content");
 		String memberId = request.getParameter("memberId");
-		System.out.println("comNo" + comNo);
-		System.out.println("content" + content);
-		System.out.println("memberId" + memberId);
+		String nick = request.getParameter("nick");
 		vo.setComNo(Integer.parseInt(comNo));
 		vo.setContent(content);
 		vo.setMemberId(memberId);
+		vo.setNick(nick);
 		return dao.replyInsert(vo);
 	}
 

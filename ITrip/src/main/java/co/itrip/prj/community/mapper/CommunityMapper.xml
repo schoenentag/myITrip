@@ -8,6 +8,7 @@
 		title,
 		content,
 		member_id,
+		nick,
 		dt,
 		hit,
 		attach,
@@ -45,7 +46,7 @@
 		</selectKey>
 		insert into comboard
 		values(#{comNo}, #{title}, #{content},
-		#{memberId}, sysdate, 0, #{attach}, #{attachDir}, '스터디')
+		#{memberId}, sysdate, 0, #{attach}, #{attachDir}, '스터디', #{nick})
 	</insert>
 
 	<update id="studyUpdate">
@@ -64,6 +65,20 @@
 		from comboard
 		where com_no=#{comNo}
 	</delete>
+	
+	<!-- 검색+페이징(스터디게시판) -->
+	<select id="studySearch" resultType="co.itrip.prj.community.service.CommunityVO">
+		select * 
+		from comboard
+		where ctgry='스터디'
+		<choose>
+			<when test="key == 1"> and title like '%'|| #{val} ||'%'</when>
+			<when test="key == 2"> and content like '%'|| #{val} ||'%'</when>
+			<when test="key == 3"> and nick like '%'|| #{val} ||'%'</when>
+		</choose>
+		order by com_no
+		desc
+	</select>
 
 	<!-- 자유게시판 -->
 	<select id="freeList"
@@ -87,7 +102,7 @@
 		</selectKey>
 		insert into comboard
 		values(#{comNo}, #{title}, #{content},
-		#{memberId}, sysdate, 0, #{attach}, #{attachDir}, '자유게시판')
+		#{memberId}, sysdate, 0, #{attach}, #{attachDir}, '자유게시판', #{nick})
 	</insert>
 
 	<update id="freeUpdate">
@@ -100,6 +115,25 @@
 		</set>
 		where com_no = #{comNo}
 	</update>
+	
+	<delete id="freeDelete">
+		delete
+		from comboard
+		where com_no=#{comNo}
+	</delete>
+	
+	<!-- 검색+페이징(자유게시판) -->
+	<select id="freeSearch" resultType="co.itrip.prj.community.service.CommunityVO">
+		select * 
+		from comboard
+		where ctgry='자유게시판'
+		<choose>
+			<when test="key == 1"> and title like '%'|| #{val} ||'%'</when>
+			<when test="key == 2"> and content like '%'|| #{val} ||'%'</when>
+		</choose>
+		order by com_no
+		desc
+	</select>
 
 	<!-- 댓글 서비스 -->
 	<select id="replyList"
@@ -108,6 +142,7 @@
 		com_no,
 		content,
 		member_id,
+		nick,
 		dt
 		from reply
 		where
@@ -129,7 +164,7 @@
 		</selectKey>
 		insert into reply
 		values(#{reNo}, #{comNo}, #{content}, #{memberId},
-		sysdate)
+		sysdate, #{nick})
 	</insert>
 
 	<!-- 댓글 수정 -->
@@ -159,6 +194,7 @@
 				title,
 				content,
 				member_id,
+				nick,
 				dt,
 				hit,
 				attach,
@@ -168,5 +204,45 @@
 			<if test="ctgry.equals('스터디') or ctgry.equals('자유게시판')"> where ctgry = #{ctgry} </if>
 			<if test="memberId != null">where member_id = #{memberId}</if>
 		order by com_no desc
+	</select>
+	
+	<!-- 내가 쓴 자유게시판 -->
+	<select id="myStudy" resultType="co.itrip.prj.community.service.CommunityVO">
+		select  com_no,
+				title,
+				content,
+				member_id,
+				dt,
+				hit,
+				attach,
+				attach_dir,
+				ctgry
+		from comboard
+		where ctgry = '스터디'
+		and member_id = #{memberId}
+		order by com_no desc
+	</select>
+	
+	<!-- 내가 쓴 스터디게시판 -->
+	<select id="myFree" resultType="co.itrip.prj.community.service.CommunityVO">
+		select  com_no,
+				title,
+				content,
+				member_id,
+				dt,
+				hit,
+				attach,
+				attach_dir,
+				ctgry
+		from comboard
+		where ctgry = '자유게시판'
+		and member_id = #{memberId}
+		order by com_no desc
+	</select>
+	
+	<select id="replyCount" resultType="Integer">
+		select count(*)
+		from reply 
+		where com_no = #{com_no};
 	</select>
 </mapper>

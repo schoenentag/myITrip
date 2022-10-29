@@ -64,8 +64,11 @@ public class CbtUserController {
 	//문제등록
 	@PostMapping("/cbtUserInsert.do")
 	public String cbtUserInsert(CbtUserVO vo, Model  model, MultipartFile file,HttpServletRequest request) throws IllegalStateException, IOException {
-		
 		String oFileName = file.getOriginalFilename();
+		File files = new File(fileDir+"/CBT_USER/");
+		if(!files.exists()) {
+			files.mkdirs();
+		}
 		if(!oFileName.isEmpty()) {
 			String sFileName = UUID.randomUUID().toString()+oFileName.substring(oFileName.lastIndexOf("."));
 			String path = fileDir+"/CBT_USER/"+sFileName;
@@ -73,7 +76,6 @@ public class CbtUserController {
 			vo.setAttach(oFileName); 
 			vo.setAttachDir(sFileName);
 		}
-		
 		cbtUserService.cbtUserInsert(vo);
 		
 		return "redirect:cbtUserMain.do";
@@ -98,15 +100,6 @@ public class CbtUserController {
 	@PostMapping("/cbtUserMyOne.do")
 	public String cbtUserListOne(CbtUserVO vo, Model model) {
 		model.addAttribute("langCdList",cmmnCdService.cdList("L"));
-
-		/*
-		 * String ucd = cmmnCdService.cdNameList("U", vo.getUtpCd()); String lcd =
-		 * cmmnCdService.cdNameList("L", vo.getLangCd()); vo.setUtpCdName(ucd);
-		 * vo.setLangCdName(lcd);
-		 */
-		System.out.println("~~~~~~~~~~~~~~"+vo.getUtpCd());
-		System.out.println("~~~~~~~~~~~~~~"+vo.getUtpCdName());
-		
 		model.addAttribute("myCbt", cbtUserService.cbtUserMyOne(vo));
 		return "cbtUser/cbtUserMyOne";
 	}
@@ -119,7 +112,7 @@ public class CbtUserController {
 		if(!oFileName.isEmpty()) {
 			//기존파일삭제
 			CbtUserVO cbtVo = cbtUserService.cbtUserMyOne(vo);
-			File beforeFile = new File("C:/Temp/CBT_USER/"+cbtVo.getAttachDir());
+			File beforeFile = new File(fileDir+"/CBT_USER/"+cbtVo.getAttachDir());
 		  	if( beforeFile.exists() ){ //파일존재여부확인
 	    		if(beforeFile.isDirectory()){ //파일이 디렉토리인지 확인
 	    			File[] files = beforeFile.listFiles();
@@ -156,7 +149,7 @@ public class CbtUserController {
 		
 		CbtUserVO cbtVo = cbtUserService.cbtUserMyOne(vo);
 		
-		File file = new File("C:/Temp/CBT_USER/"+cbtVo.getAttachDir());
+		File file = new File(fileDir+"/CBT_USER/"+cbtVo.getAttachDir());
         
     	if( file.exists() ){ //파일존재여부확인
     		if(file.isDirectory()){ //파일이 디렉토리인지 확인
@@ -178,6 +171,7 @@ public class CbtUserController {
     	}else{
     		System.out.println("파일이 존재하지 않습니다.");
     	}
+		cbtUserService.cbtUserMyDelete(vo);
 
 		return "redirect:cbtUserMyList.do";
 	}

@@ -92,4 +92,34 @@ public class CommunityServiceImpl implements CommunityService {
 		return map.commHitUpdate(vo);
 	}
 
+	@Override
+	public List<CommunityVO> freeSearch(CommunityVO vo) {
+		return map.freeSearch(vo);
+	}
+
+	@Override
+	public List<CommunityVO> studySearch(CommunityVO vo) {
+		return map.studySearch(vo);
+	}
+
+	@Override
+	public List<CommunityVO> myStudy(CommunityVO vo) {
+		return map.myStudy(vo);
+	}
+
+	@Override
+	public List<CommunityVO> myFree(CommunityVO vo) {
+		return map.myFree(vo);
+	}
+
+	@Override
+	public int freeDelete(CommunityVO vo) {
+		return map.freeDelete(vo);
+	}
+
+	@Override
+	public int replyCount(ReplyVO vo) {
+		return map.replyCount(vo);
+	}
+
 }

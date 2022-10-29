@@ -4,6 +4,8 @@
 	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
 <meta charset="UTF-8">
+<meta name="_csrf" th:content="${_csrf.token}" th:if="${_csrf} ne null"/>
+<meta name="_csrf_header" th:content="${_csrf.headerName}" th:if="${_csrf} ne null"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>메인화면</title>
 <script src="js/jquery-3.6.0.min.js"></script>
@@ -99,17 +101,19 @@
 						</a></li>
 
 						<!-- 관리자 페이지 : 권한에 따라 보이게? -->
-						<li class='sidebar-title'>관리자 페이지</li>
-						<li class="sidebar-item  has-sub"><a href="#"
-							class='sidebar-link'> <i data-feather="user" width="20"></i>
-								<span>관리자</span>
-						</a>
-							<ul class="submenu ">
-								<li><a href="memberAuthList.do">멘토신청 목록</a></li>
-								<li><a href="memberList.do">회원목록</a></li>
-								<li><a href="appClass.do">클래스 승인</a></li>
-								<li><a href="appConsult.do">상담 승인</a></li>
-							</ul></li>
+						<div sec:authorize="isAuthenticated()" th:if="${#authentication.principal.member.auth} == 'ROLE_ADMIN'">
+							<li class='sidebar-title' >관리자 페이지</li>
+							<li class="sidebar-item  has-sub"><a href="#"
+								class='sidebar-link'> <i data-feather="user" width="20"></i>
+									<span>관리자</span>
+							</a>
+								<ul class="submenu ">
+									<li><a href="memberAuthList.do">멘토신청 목록</a></li>
+									<li><a href="memberList.do">회원목록</a></li>
+									<li><a href="appClass.do">클래스 승인</a></li>
+									<li><a href="appConsult.do">상담 승인</a></li>
+								</ul></li>
+						</div>
 
 					</ul>
 				</div>
@@ -178,7 +182,7 @@
 						<li class="dropdown">
 							<div sec:authorize="isAuthenticated()">
 								<form action="logout" method="post">
-										<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"> 
+										<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf} ne null"> 
 										<input id="memberId" type="hidden" th:value="${#authentication.principal.member.memberId}">
 									<button class="btn btn-sm btn-outline-primary">로그아웃</button>
 								</form>
@@ -212,7 +216,9 @@
 	</div>
 
 	<script th:inline="javascript">
-
+			var csrfToken = $("meta[name='_csrf']").attr("content");    
+			var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+			
 			$("#myPage").on("click", function() {
 				//console.log(memberId);
 				location.href = "/myPage"
@@ -231,9 +237,6 @@
 			
 			//알람 상태 업데이트
 			$("#alarmList").on("click", function(e){
-				let csrfHeaderName = "${_csrf.headerName}";
-				let csrfToken=$("input[name=_csrf]").val();
-				
 				if($(e.target).prop('tagName') == 'SPAN'){
 					let alarmNo = $(e.target).closest("div").prev().html();
 					$.ajax({ 
@@ -257,21 +260,18 @@
 			//헤더 알림 ajax
 			$(document).ready(function(){
 				let auth = [[${#authentication.principal}]];
-	            //console.log(auth);
-	            if(auth=='anonymousUser'){
-	               //console.log("확인");  
-	            } else{
-	               alarmCount();//페이지 로딩시 알람 개수 출력
-	               alarmList();//알람 리스트 출력
-	            }
+				//console.log(auth);
+				if(auth=='anonymousUser'){
+					//console.log("확인");  
+				} else{
+					alarmCount();//페이지 로딩시 알람 개수 출력
+					alarmList();//알람 리스트 출력
+				}
 			});
 			
 			//알람 리스트 출력
 			function alarmList(){
-				let csrfHeaderName = "${_csrf.headerName}";
-				let csrfToken=$("input[name=_csrf]").val();
 				let id = $("#memberId").val();
-				
 				$.ajax({ 
 					url : "/alarmList.do",
 					type : "post",
@@ -289,14 +289,11 @@
 								<div class="alert alert-info alert-dismissible show fade">
 									${element.alarmMsg}
 								<button type="button" class="close" data-dismiss="alert"
-									aria-label="Close">
-									<span aria-hidden="true">&times;</span>
+									aria-label="Close"><span aria-hidden="true">&times;</span>
 								</button>
 							</div>
 							</li>`;
-
 							$("#alarmList").html(a);
-							//console.log(element.alarmMsg);
 						})
 					}
 				})
@@ -304,10 +301,7 @@
 			
 			//알람 카운트 개수 출력
 			function alarmCount(){
-				let csrfHeaderName = "${_csrf.headerName}";
-				let csrfToken=$("input[name=_csrf]").val();
 				let id = $("#memberId").val();
-				
 				$.ajax({ 
 					url : "/alarmCount.do",
 					type : "post",

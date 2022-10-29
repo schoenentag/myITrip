@@ -110,6 +110,20 @@ public class ClassServiceImpl implements ClassService {
 		return map.myClassAttendList(vo);
 	}
 
+	@Override
+	public int classlinkInsert(ClassChatVO vo) {
+		// 가이드가 클래스 링크 입력
+		return map.classlinkInsert(vo);
+	}
+
+	@Override
+	public ClassChatVO linkList(ClassChatVO vo) {
+		// 가이드 마이페이지 클래스 링크 확인
+		return map.linkList(vo);
+	}
+
+	
+
 	
 	
 

@@ -83,8 +83,28 @@ public class ConsultServiceImpl implements ConsultService{
 
 	@Override
 	public ConsultDtVO ajaxConsultPrice(ConsultDtVO vo) {
-		//상담가격 가져오기(ajax)
 		return map.ajaxConsultPrice(vo);
 	}
+
+
+
+	@Override
+	public int consultTime(ConsultDtVO vo) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public List<ConsultVO> alreadyConsult(ConsultVO vo) {
+		// 가이드가 신청중인 상담 리스트
+		return map.alreadyConsult(vo);
+	}
+
+	@Override
+	public int consultLinkInsert(ConsultChatVO vo) {
+		// 상담 링크 등록
+		return map.consultLinkInsert(vo);
+	}
+
 
 }

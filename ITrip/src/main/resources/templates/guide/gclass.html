@@ -10,7 +10,8 @@
 <style>
 	.table{
 		text-align: center;
-		margin: 30px;
+		margin-top: 50px;
+		margin-bottom: 50px;
 	}
 	
 	.table td img{
@@ -38,7 +39,7 @@
 					<button id="startClass" style="width: 140px;" class="btn btn-sm btn-primary">등록하기</button>
 					<button id="alreadyClass" style="width: 150px;" class="btn btn-sm btn-primary">등록한 클래스 목록</button>
 				</div>
-				<div th:each="classlist : ${classList}" th:if="${classlist.confmCd == '2'}" style="width: 380px; display: inline-block;">
+				<div th:each="classlist : ${pageInfo.list}" th:if="${classlist.confmCd == '2'}" style="width: 380px; display: inline-block;">
 								<table class="table table-hover table-bordered" style="width: 300px;">
 									<tbody>
 										<tr style="display: none;">
@@ -47,7 +48,7 @@
 										</tr>
 										<tr>
 											<!-- 이미지(수정) -->
-											<td colspan="2"> <img th:src="@{/download(fileName=${'/CLASS/'+classlist.attachDir})}" alt="Image" class="img-fluid" /></td>
+											<td colspan="2"> <img th:src="@{/download(fileName=${'/classimg/'+classlist.attachDir})}" alt="Image" class="img-fluid" /></td>
 										</tr>
 										<tr>
 											<td colspan="2" th:text="${classlist.title}"></td>
@@ -66,41 +67,161 @@
 										<tr>
 											<td colspan="2">
 												<div th:if="${classlist.st} == '진행중'" >
-							                       <button class="btn btn-primary py-2 px-1 link">링크입력</button>&nbsp;&nbsp;
+													<button type="button" class="btn btn-primary py-2 px-1 link" disabled='disabled'>
+                        							링크입력
+                    								</button>&nbsp;&nbsp;
 							                       <button class="btn btn-primary py-2 px-1 classChat" >강의실 입장</button>
 							               		</div>
 							               		<div th:unless="${classlist.st} == '진행중'" >
-							                       <button class="btn btn-primary py-2 px-1 link" disabled='disabled'>링크입력</button>&nbsp;&nbsp;
+							               		<input th:value="${classlist.classNo}" type="hidden">
+							                       <button class="btn btn-primary py-2 px-1 link" data-toggle="modal" data-target=".inlineForm" >링크입력</button>&nbsp;&nbsp;
 							                       <button class="btn btn-primary py-2 px-1 classChat" disabled='disabled'>강의실 입장</button>
-							               		</div>
-											</td>
+							               		</div> 
+							               		
+							               		<!-- 링크입력 모달 -->
+									<div class="modal fade text-left inlineForm" id="inlineForm" tabindex="-1"
+										role="dialog" aria-labelledby="myModalLabel33"
+										aria-hidden="true">
+										<div
+											class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+											role="document">
+											<div class="modal-content">
+												<div class="modal-header">
+													<h6 class="modal-title" id="myModalLabel33">링크입력창</h6>
+													<button type="button" class="close" data-dismiss="modal"
+														aria-label="Close">
+														<i data-feather="x"></i>
+													</button>
+												</div>
+												<form action="classlinkInsert.do" method="post" onsubmit="return message()">
+												<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+													<div class="modal-body">
+														<div class="form-group">
+															<ul class="message" hidden=""> ※ 링크를 입력하신 클래스입니다.</ul>
+															<input type="hidden" th:value="${classlist.classNo}" name="classNo">
+															<input id="classlink" type="text" class="form-control classlick" name="chatLink">
+														</div>
+													</div>
+													<div class="modal-footer">
+														<button type="submit" class="btn btn-primary ml-1 clink">입력</button>
+													</div>
+												</form>
+											</div>
+										</div>
+									</div>
+									<!-- 링크입력 모달 -->
+								</td>
+											
 										</tr>
 									</tbody>								
 								</table>
 							</div>
+									<!-- 페이지네이션 -->
+					<nav aria-label="Page navigation example">
+						<ul class="pagination pagination-info  justify-content-center">
+							<li class="page-item disabled"
+								th:if="${pageInfo.isIsFirstPage()}"><span
+								class="page-link">«</span></li>
+							<li class="page-item"
+								th:if="${!pageInfo.isIsFirstPage() && pageInfo.getList().size() > 0}"><a
+								class="page-link"
+								th:href="|javascript:gopage([[${pageInfo.getPrePage()}]])|"
+								rel="prev">«</a></li>
+							<li th:class="|page-item ${(pageInfo.pageNum eq page) ? 'active': ''} |"
+								th:each="page:${pageInfo.navigatepageNums}"><span
+								class="page-link" th:if="${pageInfo.pageNum eq page}"
+								th:text="${page}"></span> <a class="page-link"
+								th:unless="${pageInfo.pageNum eq page}"
+								th:href="|javascript:gopage(${page})|" th:text="${page}">{{$page}}</a></li>
+							<li class="page-item" th:if="${pageInfo.hasNextPage}"><a
+								class="page-link"
+								th:href="|javascript:gopage([[${pageInfo.getNextPage()}]])|"
+								rel="next">»</a></li>
+							<li class="page-item disabled"
+								th:unless="${pageInfo.hasNextPage}"><span
+								class="page-link">»</span></li>
+						</ul>
+					</nav>
 			</div>
 		<script type="text/javascript">
 			let memberId = $("#memberId").val(); //현재 접속한 사람 아이디
 			
+			function gopage(p) {
+			location.href = '/gclass.do?pageNum=' + p;
+			}
+		
+
 			//클래스 등록
 			$("#startClass").on("click", function() {
 				location.href = "/startClass.do?";
 			})
-			
+
 			//등록한 클래스 목록(승인요청중인)
-			$("#alreadyClass").on("click", function(){
+			$("#alreadyClass").on("click", function() {
 				location.href = "/alreadyClass";
 			})
-			
+
 			//채팅방 연결
-			$(".classChat").on("click", function(e){
-				let classNo = $(e.target).closest("tbody").children(1).children(1).html();
-				//console.log(classNo);
-				location.href="classChat.do?classNo=" + classNo; 
+			$(".classChat").on(
+					"click",
+					function(e) {
+						let classNo = $(e.target).closest("tbody").children(1)
+								.children(1).html();
+						//console.log(classNo);
+						location.href = "classChat.do?classNo=" + classNo;
+					})
+					
+		    // 클래스 링크 입력
+		    function message() {
+				
+				if($(".classlink").val() == "") {
+    				alert('링크를 입력후 제출해주세요.');
+    				$(".classlink").focus();
+    				return false;
+    			}
+				
+				alert("링크입력이 완료되었습니다.");
+				return true;
+			}
+			
+			// 링크버튼 클릭시 이미 링크를 입력한 클래스인지 확인
+			$(".link").on("click", function(e) {
+				
+				let classNo = $(e.target).prev().val();
+				console.log(classNo);
+				
+				$.ajax({
+					url : "/lickCheck.do",
+					type : "get",
+					data : {
+						'classNo' : classNo
+					},
+					success : function(data) {
+						console.log("출력" + data);
+						
+						 if(data == "") {
+						
+						
+						}else{
+						
+						    let link = data.chatLink;
+						    $(".classlick").val(link);
+						    $(".classlick").prop('readonly', true);
+						    $(".clink").hide();
+						    $(".message").removeAttr('hidden');
+
+						} 
+						
+					}
+
+				})
+				
+				
+				
 			})
+
 			
-			
-        </script>
+		</script>
 	</div>
 </div>
 </body>

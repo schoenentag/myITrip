@@ -33,7 +33,9 @@
 				on c.job_cd = cm.cd_no
 				left join class_dt dt
 				on c.class_no = dt.class_no
-				where cm.cd_ini = 'J' and dt.ctime_no=1  order by 1 
+				where cm.cd_ini = 'J'
+				and c.confm_cd = 2 
+				and dt.ctime_no=1  order by 1 
 
 	</select><!-- and ennc = '활성화' -->
 	
@@ -70,8 +72,8 @@
 	
 	<select id="myClassList" resultType="co.itrip.prj.iclass.service.ClassVO">
 		 SELECT C.* ,DT.MINDT, DT.MAXDT, p.member_id,
-     				CASE WHEN  SYSDATE BETWEEN MINDT AND MAXDT THEN '진행중'
-                    <![CDATA[WHEN  SYSDATE < MINDT THEN '개설전']]> <!--  Query안에 사용되고 있는 부등호가 문자열이라는 것을 의미 -->
+     				CASE WHEN  SYSDATE BETWEEN TO_DATE(MINDT, 'yyyy-mm-dd') AND TO_DATE(MAXDT, 'yyyy-mm-dd') THEN '진행중'
+                    <![CDATA[WHEN  SYSDATE < TO_DATE(MINDT, 'yyyy-mm-dd') THEN '개설전']]> <!--  Query안에 사용되고 있는 부등호가 문자열이라는 것을 의미 -->
                     ELSE '종료'
                     END ST
         FROM CLASS C , payform p, ( SELECT CLASS_NO, MIN(TERM) MINDT , MAX(TERM) MAXDT 
@@ -96,6 +98,16 @@
 	<insert id="classAttendInsert">
 		insert into class_attend values(#{memberId},#{classNo},0,0)
 	</insert>
+	
+	<!-- 가이드 클래스 링크입력 -->
+	<insert id="classlinkInsert">
+		insert into class_chat values (#{classNo},#{chatLink})
+	</insert>
+	
+	<!-- 가이드마이페이지 클래스 링크 버튼 확인 -->
+	<select id="linkList" resultType="co.itrip.prj.iclass.service.ClassChatVO">
+		select * from class_chat where class_no = #{classNo}
+	</select>
 	
 	<!-- 강의장 연결 -->
 	<select id="classChatLink" resultType="co.itrip.prj.iclass.service.ClassChatVO">

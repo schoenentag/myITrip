@@ -1,19 +1,25 @@
 package co.itrip.prj.payform.web;
 
 import java.security.Principal;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
-import javax.security.auth.message.callback.PrivateKeyCallback.Request;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
+import co.itrip.prj.calendar.service.CalendarService;
 import co.itrip.prj.calendar.service.CalendarVO;
 import co.itrip.prj.iclass.service.ClassAttendVO;
+import co.itrip.prj.iclass.service.ClassDtVO;
 import co.itrip.prj.iclass.service.ClassService;
+import co.itrip.prj.iclass.service.ClassVO;
 import co.itrip.prj.payform.service.PayformService;
 import co.itrip.prj.payform.service.PayformVO;
 
@@ -28,14 +34,49 @@ public class PayformController {
 	
 	@Autowired
 	private PayformService payformService;
+	
+	@Autowired
+	private ClassService classService; //클래스 서비스
+	
+	@Autowired
+	private CalendarService calendarService; //캘린더 서비스
 
+	
 	
 	//경아 - 클래스구입
 	@PostMapping("/ClPayformInsert.do")
-	public String ClPayformInsert(PayformVO vo,ClassAttendVO cvo, CalendarVO cavo, Principal prin) {
+	public String ClPayformInsert(PayformVO vo, ClassVO clvo, ClassDtVO cdvo ,ClassAttendVO cvo, CalendarVO cavo, Principal prin, HttpServletRequest request) {
 		cvo.setMemberId(prin.getName());
-		payformService.clPayformInsert(vo,cvo,cavo);
-		return "redirect:myPage";
+		int classNo = Integer.parseInt(request.getParameter("classNo"));
+		String merchantUid = request.getParameter("merchantUid");
+		String guideId = request.getParameter("guideId");
+		String name = request.getParameter("name");
+		
+		//payform에 먼저 insert해야함(부모키가 없음) => 수정필요
+		vo.setNo(classNo);
+		payformService.clPayformInsert(vo, cvo, cavo);
+		cdvo.setClassNo(classNo);
+		List<ClassDtVO> dtList = classService.classDtList(cdvo);
+		System.out.println("dtList : " + dtList);
+		//System.out.println(dtList.size());
+		//cavo => calendar_no, merchant_uid, guide_id, name, conday, begin_time, no 필요
+		//conday랑 begin time은 dtList에 들어있음 / no = classNo임
+		
+		for(int i = 0; i<dtList.size(); i++) {
+			//System.out.println("dtList~~:" + dtList.get(i));
+			String conday = dtList.get(i).getTerm();
+			String beginTime = dtList.get(i).getBeginTime();
+			cavo.setMerchantUid(merchantUid);
+			cavo.setGuideId(guideId);
+			cavo.setName(name);
+			cavo.setNo(classNo); //no
+			cavo.setConday(conday);
+			cavo.setBeginTime(beginTime);
+			System.out.println(cavo);
+			calendarService.calendarInsert(cavo);
+		}
+		
+		return "redirect:iClassList.do";
 	}
 	
 	
@@ -46,9 +87,18 @@ public class PayformController {
 		//System.out.println("!!!!!!!!!"+no);
 		//System.out.println("!!!!!!!!!"+vo.getNo());
 		vo.setMember_id(prin.getName());
+		int end = Integer.parseInt(vo.getBeginTime()) + 1;
+		String begin = vo.getBeginTime();
+		String beginTime = begin + ":00";
+		String endTime = end + ":00";
+		System.out.println("testttttttt" + endTime);
+		vo.setBeginTime(beginTime);
+		vo.setEndTime(endTime);
 		payformService.coPayformInsert(vo,cvo);
+		System.out.println(vo);
 		return "redirect:myPage";
 	}
+	
 	
 	
 	/*

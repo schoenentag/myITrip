@@ -32,6 +32,8 @@ import co.itrip.prj.iclass.service.ClassChatVO;
 import co.itrip.prj.iclass.service.ClassDtVO;
 import co.itrip.prj.iclass.service.ClassService;
 import co.itrip.prj.iclass.service.ClassVO;
+import co.itrip.prj.payform.service.PayformService;
+import co.itrip.prj.payform.service.PayformVO;
 
 @Controller
 public class ClassController {
@@ -50,6 +52,9 @@ public class ClassController {
 
 	@Autowired
 	private AlarmService aService; // 알람 서비스
+	
+	@Autowired
+	private PayformService payService; // 알람 서비스
 
 	// 클래스리스트
 	@GetMapping("/iClassList.do")
@@ -64,21 +69,21 @@ public class ClassController {
 	}
 
 	// Class insert & 파일처리
-
 	@PostMapping("/classInsert.do")
 	public String classInsert(AlarmVO avo, FollowVO fvo, ClassVO vo, ClassDtVO dtvo, MultipartFile file)
 			throws IllegalStateException, IOException {
-
 		// 새로운파일저장경로
 		String oFileName = file.getOriginalFilename();
+		File files = new File(fileDir+"/classimg/");
+		if(!files.exists()) {
+			files.mkdirs();
+		}
 		if (!oFileName.isEmpty()) {
 			String sFileName = UUID.randomUUID().toString() + oFileName.substring(oFileName.lastIndexOf(".")); // 마지막.뒤에값
-																												// 가져오기
-			String path = fileDir + "/Thumbnail/" + sFileName;
+			String path = fileDir + "/classimg/" + sFileName;
 			file.transferTo(new File(path));
 			vo.setAttach(oFileName);
 			vo.setAttachDir(sFileName);
-
 		}
 		cService.classInsert(vo);
 
@@ -98,7 +103,7 @@ public class ClassController {
 		} // 나를 팔로우하는 멤버 리스트(flist)
 
 
-		return "guide/gclass";
+		return "redirect:gclass.do";
 	}
 
 		
@@ -117,9 +122,10 @@ public class ClassController {
 
 	// 경아 - 클래스상세보기certificate.do
 	@RequestMapping("/iClassSelectOne.do")
-	public String iClassSelectOne(ClassVO vo, Model model, ClassDtVO dvo) {
+	public String iClassSelectOne(ClassVO vo, Model model, ClassDtVO dvo,PayformVO pvo) {
 		model.addAttribute("classOne", cService.classSelectOne(vo));
 		model.addAttribute("classDt", cService.classDtList(dvo));
+		model.addAttribute("max", payService.payCount(pvo));
 		return "class/iclassSelectOne";
 	}
 
@@ -157,6 +163,14 @@ public class ClassController {
 	}
 
 	// 소정 //////////////////////////////////////////////////
+	
+	// 가이드 클래스 링크 입력
+	@PostMapping("/classlinkInsert.do")
+	public String classlinkInsert(ClassChatVO vo) {
+		cService.classlinkInsert(vo);
+		return "redirect:gclass.do";
+	}
+	
 
 	// 출석횟수랑 수업회차 비교
 	@PostMapping("/classAttendSelect.do")

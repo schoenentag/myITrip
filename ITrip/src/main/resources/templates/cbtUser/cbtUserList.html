@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="_csrf" th:content="${_csrf.token}"/>
 <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-<title>Insert title here</title>
+<title>유저 CBT</title>
 <script src="js/jquery-3.6.0.min.js"></script>
 <style type="text/css">
 .content { /*컨텐츠 넓이지정*/
@@ -119,7 +119,7 @@
 						</div>
 						<div class="card-body"> 
 							<div th:if="${cbtOne.attachDir !=null}">
-                     			<img th:src="@{/download(fileName=${'/CBT_USER/'+cbtOne.attachDir})}" alt="이미지" style="margin-bottom: 10px;width: 350px;"/><br>
+                     			<img th:src="@{/download(fileName=${'/CBT_USER/'+cbtOne.attachDir})}" alt="이미지" style="margin-bottom: 10px;width: 500px;"/><br>
 							</div>
 							<div class="form-check">
 								<b>1</b>. <a href="#" class="ex" th:text="${cbtOne.ex1}"></a><br> 
@@ -151,7 +151,7 @@
 						</div>
 						<div class="card-body cnsrOX"> 
 							<div th:if="${cbtOne.attachDir !=null}">
-                     			<img th:src="@{/download(fileName=${'/CBT_USER/'+cbtOne.attachDir})}" alt="이미지" style="margin-bottom: 10px;width: 350px;"/><br>
+                     			<img th:src="@{/download(fileName=${'/CBT_USER/'+cbtOne.attachDir})}" alt="이미지" style="margin-bottom: 10px;width: 500px;"/><br>
                      		</div>
 							<label for="cnsr" class="form-label">O 또는 X를 선택하세요.</label>
 							<div class="form-check">
@@ -170,7 +170,6 @@
 			</div><!-- end of slide_item -->
 		</div><!-- end of slides  -->
 	</div>	<!-- end of content  -->
-			
 </div><!-- end of th:if  -->
 
 <div id="langCd" th:if="!${#lists.isEmpty(cbtOne)}" th:text="${cbtOne.langCd}"style="display: none;" ></div>
@@ -278,7 +277,7 @@ function newQuestion(res){
 			if(res.attachDir != null){
 				cardContent.innerHTML += 
 					`<div class="card-body">
-					<img src="${'/download?fileName=/CBT_USER/'+res.attachDir}" alt="이미지" style="margin-bottom: 10px;width: 350px;"/><br>`
+					<img src="${'/download?fileName=/CBT_USER/'+res.attachDir}" alt="이미지" style="margin-bottom: 10px;width: 500px;"/><br>`
 			}
 		cardContent.innerHTML += 
 			`<div class="form-check">
@@ -299,7 +298,7 @@ function newQuestion(res){
 			if(res.attachDir != null){
 				cardContent.innerHTML +=
 					`<div class="card-body">
-					 <img src="${'/download?fileName=/CBT_USER/'+res.attachDir}" alt="이미지" style="margin-bottom: 10px;width: 350px;"/><br>`
+					 <img src="${'/download?fileName=/CBT_USER/'+res.attachDir}" alt="이미지" style="margin-bottom: 10px;width: 500px;"/><br>`
 			}
 		cardContent.innerHTML += 
 				`<div class="card-body cnsrOX"> 
@@ -342,7 +341,6 @@ function compareCnsrAjax(myChoice){
 
 //풀이 및 댓글
 function moreInfo(res){
-
  	cardContent.innerHTML += 
 		` <div class="explna">
 			<ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -384,8 +382,8 @@ function moreInfo(res){
 				</div><div id="pageArea"></div>
 			</div>
 		</div>`
-		
 
+	
 	let feedbackTab = document.getElementById("feedbackTab");
 	let feedbackArea = document.getElementById("feedbackArea");
 	let pageArea = document.getElementById("pageArea");
@@ -406,8 +404,6 @@ function gopage(p){
 			if(res.total==0){
 				feedbackArea.innerHTML+= "<tr><td colspan='4'>댓글이 없습니다 .....</td></tr>"
 			}else{
-				
-			
 				res.list.forEach((elem,idx,arr)=>{
 					if(mId == elem.memberId){
 						feedbackArea.innerHTML+= 
@@ -416,8 +412,9 @@ function gopage(p){
 					}else{
 						feedbackArea.innerHTML+=
 							"<tr><td>"+(idx+1)+"</td><td>"+elem.content+"</td><td>"
-							+elem.nick+"</td><td><button type='button' class='badge bg-warning' disabled='disabled'>x</button></td></tr>";
+							+elem.nick+"</td><td><button type='button'  class='badge bg-warning fbDelete' id='fbDelete'>x</button></td></tr>";
 					}
+					//content.value =""
 				})
 				
 				//paging..start
@@ -430,7 +427,6 @@ function gopage(p){
 			    	ph+='<li class="page-item">'
 					+'<a class="page-link" href="javascript:gopage('+res.prePage+')" rel="prev">«</a></li>'
 			    }
-		
 				for(page of res.navigatepageNums){
 					ph+="<li class='page-item ("+res.pageNum +" eq "+ page+") ? 'active': ''} '></li>"
 					if(res.pageNum == page){
@@ -440,13 +436,11 @@ function gopage(p){
 					}
 					ph+="</li>"
 				}
-			
 				if(res.hasNextPage ==true){
 					ph+=' <li class="page-item"><a class="page-link" href="javascript:gopage('+res.nextPage+')" rel="next">»</a></li>'
 				}else{
 					ph+='<li class="page-item disabled"><span class="page-link">»</span></li></ul></nav>'
 				}
-				
 				pageArea.innerHTML = ph
 				//paging..end	
 			}
@@ -478,7 +472,6 @@ $(document).on("click","#fbInsert", function(e){
 			if(data == 1){
 				alert("댓글이 성공적으로 등록되었습니다.")
 				
-				//똑같은아작스 또 호출해야되나;? 
 				$.ajax({
 					url:'/feedbackList.do',
 					type:'get',
@@ -489,10 +482,16 @@ $(document).on("click","#fbInsert", function(e){
 					data:{'cbtNo':cbtNos.innerText},
 					success:function result(res){
 						feedbackArea.innerHTML="" 
-						res.forEach((elem,idx,arr)=>{
-							feedbackArea.innerHTML+= 
-								"<tr><td>"+(idx+1)+"</td><td>"+elem.content+"</td><td>"
+						res.list.forEach((elem,idx,arr)=>{
+							if(memberId == elem.memberId){
+								feedbackArea.innerHTML+= 
+									"<tr><td>"+(idx+1)+"</td><td>"+elem.content+"</td><td>"
 									+elem.nick+"</td><td><button type='button' class='badge bg-warning fbDelete' id='fbDelete' value="+elem.feedbackNo+">x</button></td></tr>"
+							}else{
+								feedbackArea.innerHTML+=
+									"<tr><td>"+(idx+1)+"</td><td>"+elem.content+"</td><td>"
+									+elem.nick+"</td><td><button type='button'  class='badge bg-warning fbDelete' id='fbDelete'>x</button></td></tr>";
+							}
 						})
 						content=""
 					},
@@ -529,7 +528,7 @@ $(document).on("click",".fbDelete", function(e){
 		dataType:'json',
 		data:{'feedbackNo':fNo},
 		success:function result(res){
-			alert("삭제완료")
+			alert("댓글이 삭제되었습니다.")
 			if(res==1){
 				$this.closest("tr").remove()
 			}
