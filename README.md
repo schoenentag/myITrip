@@ -22,6 +22,5 @@
 * API : I'mport, fullcalendarAPI
 * CD/CD : AWS, Jenins, Docker
 * SCM : Git, GitHub
-* 
 
 ## 구현
